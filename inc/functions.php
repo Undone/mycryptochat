@@ -1,6 +1,9 @@
 <?php
-function getHashForIp() {
-    return substr(md5($_SERVER['REMOTE_ADDR'] . SEED), 0, 16);
+function getHashForIp()
+{
+	$address = filter_input(INPUT_SERVER, "REMOTE_ADDR");
+	
+    return substr(hash("sha256", $address.SEED), 0, 16);
 }
 
 function logException($e) {
