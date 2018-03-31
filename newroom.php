@@ -12,7 +12,7 @@ if(array_key_exists($_POST['nbMinutesToLive'], $allowedTimes)) {
     exit('cheater');
 }
 
-$time = $_SERVER['REQUEST_TIME'];
+$time = time();
 
 $selfDestroys = isset($_POST['selfDestroys']) && $_POST['selfDestroys'] == 'true';
 
@@ -39,12 +39,12 @@ $chatUser = array();
 $chatUser['id'] = $userHash;
 $chatUser['dateLastSeen'] = $time;
 
-array_push($chatRoom->users, $chatUser);
+$chatRoom->addUser($chatUser);
 
 $dbManager = new DbManager();
 // we delete old chatrooms
 $dbManager->CleanChatrooms($time);
-// we save the chat room in sqlite
+// we save the chat room in the database
 $dbManager->CreateChatroom($chatRoom);
 
 header('Location: chatroom.php?id=' . $key);
