@@ -10,6 +10,11 @@
 		public $isRemovable;
 		public $removePassword;
 		public $userId;
+		
+		public function addUser($user)
+		{
+			array_push($this->users, $user);
+		}
 	}
 	class ChatMessage {
 		public $message;

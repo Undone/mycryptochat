@@ -3,9 +3,10 @@ class DbManager
 {
     private $db;
     
-    function DbManager()
+    function __construct()
 	{
-        try {
+        try
+		{
 			if (DB_TYPE == DATABASE_SQLITE)
 			{
 				$this->db = new PDO('sqlite:' . DB_FILE_NAME);
@@ -105,8 +106,10 @@ class DbManager
         }
     }
     
-    function GetChatroom($id) {
-        if(is_null($id) || $id == '') {
+    function GetChatroom($id)
+	{
+        if(is_null($id) || $id == '')
+		{
             return null;    
         }
         
@@ -145,7 +148,8 @@ class DbManager
         }
     }
     
-    function UpdateChatRoomUsers($chatRoom) {
+    function UpdateChatRoomUsers($chatRoom)
+	{
         try {
             $query = 'UPDATE rooms SET users = ? WHERE id = ?';
             

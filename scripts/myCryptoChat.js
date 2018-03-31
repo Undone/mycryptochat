@@ -1,19 +1,32 @@
-﻿function sendMessage() {
-    if ($.trim($("#userName").val()) == "") {
+﻿function sendMessage()
+{
+    if ($.trim($("#userName").val()) == "")
+	{
         alert("Please choose a name!");
-    } else if (pageKey() == "" || pageKey() == "=") {
+    }
+	else if (pageKey() == "" || pageKey() == "=")
+	{
         alert("The key is missing (the part of the website url after '#').");
-    } else {
-        if ($.trim($("#textMessage").val()) != "") {
-
+    }
+	else
+	{
+        if ($.trim($("#textMessage").val()) != "")
+		{
             var key = pageKey();
 
-            $.post("sendMessage.php", { roomId: roomId, user: zeroCipher(key, $.trim($("#userName").val())), message: zeroCipher(key, $.trim($("#textMessage").val())) }, function (data) {
-                if (data != false) {
+            $.post("sendMessage.php", {
+				roomId: roomId,
+				user: zeroCipher(key, $.trim($("#userName").val())),
+				message: zeroCipher(key, $.trim($("#textMessage").val()))
+			}, function(data) {
+                if (data != false)
+				{
                     $("#textMessage").val("");
                     $("#textMessage").focus();
                     getMessages(false);
-                } else {
+                }
+				else
+				{
                     // error : the message was not recorded
                     alert("An error occured... :(");
                 }
@@ -28,28 +41,42 @@ var nbIps = 1;
 
 function getMessages(changeTitle) {
     var key = pageKey();
-    $.post("getMessages.php", { roomId: roomId, dateLastGetMessages: dateLastGetMessages, nbIps: nbIps }, function (data) {
-        if (data == "noRoom") {
+    $.post("getMessages.php", { roomId: roomId, dateLastGetMessages: dateLastGetMessages }, function (data) {
+        if (data == "noRoom")
+		{
             // closed conversation
             $("#chatroom").html("<i>This conversation is over... You should start a new one to keep talking!</i>");
             stopTimerCheck();
-        } else if (data == "destroyed") {
+        }
+		else if (data == "destroyed")
+		{
             // closed conversation
             $("#chatroom").html("<i>This conversation self-destroyed. It was only created for one visitor.</i>");
             stopTimerCheck();
-        } else if (data != "noNew") {
-            if (data.chatLines == undefined) {
+        }
+		else if (data != "noNew")
+		{
+            if (data.chatLines == undefined)
+			{
                 $("#nbUsers").html(data.nbIps);
-            } else if (data.chatLines == "") {
-                if (key == "" || key == "=") {
-                    document.location.hash = "#" + sjcl.codec.base64.fromBits(sjcl.random.randomWords(8, 0), 0);
+            }
+			else if (data.chatLines == "")
+			{
+                if (key == "" || key == "=")
+				{
+					// Generate key
+                    document.location.hash = "#"+ sjcl.codec.base64.fromBits(sjcl.random.randomWords(8));
                 }
                 $("#chatroom").html("<i>No messages yet...</i>");
-            } else if (key == "" || key == "=") {
+            }
+			else if (key == "" || key == "=")
+			{
                 $("#chatroom").html("<i>The key is missing (the part of the website url after '#').</i>");
 
                 stopTimerCheck();
-            } else {
+            }
+			else
+			{
                 var hasErrors = false;
                 var hasElements = false;
                 var chatRoom = $("#chatroom");

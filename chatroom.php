@@ -18,7 +18,6 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
     <link href="styles/myCryptoChat.css" rel="stylesheet" />
-    <script src="scripts/modernizr.js"></script>
 </head>
 <body>
     <header>
@@ -72,9 +71,7 @@
             </div>
         </div>
     </footer>
-
     <script src="scripts/jquery.js"></script>
-
     <script type="text/javascript">
         var roomId = '<?php echo htmlspecialchars($_GET['id'], ENT_QUOTES, 'UTF-8'); ?>';
         var dateLastGetMessages = '<?php echo microtime(true) - 24*60*60*365*3; ?>';
