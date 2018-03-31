@@ -35,7 +35,14 @@ foreach($chatRoom->users as $key => $user)
 	if($user['id'] == $userHash)
 	{
 		$currentUser = $user;
-		$currentUser['dateLastSeen'] = $time;
+		
+		if (($currentUser["dateLastSeen"] + NB_SECONDS_USER_TO_BE_DISCONNECTED) < $time)
+		{
+			// The current user is considered disconnected, we need to update the timestamp
+			$updateDatabase = true;
+		}
+		
+		$currentUser['dateLastSeen'] = time();
 	}
 
 	// If the user hasn't pinged for NB_SECONDS_USER_TO_BE_DISCONNECTED, then disassociate the user from the room
@@ -51,7 +58,7 @@ if (!$currentUser)
 {
 	$currentUser = array();
 	$currentUser['id'] = $userHash;
-	$currentUser['dateLastSeen'] = $time;
+	$currentUser['dateLastSeen'] = time();
 	
 	$chatRoom->addUser($currentUser);
 	$updateDatabase = true;
@@ -75,7 +82,7 @@ if($dateLastNewMessage < $chatRoom->dateLastNewMessage)
 {
 	$messages = $dbManager->GetLastMessages($chatRoom->id, NB_MESSAGES_TO_KEEP);
 	header('Content-Type: application/json');
-	echo '{"dateLastGetMessages": ',$time,', "chatLines": ',json_encode($messages),', "nbIps": ', count($chatRoom->users),'}';
+	echo '{"dateLastGetMessages": ', time(),', "chatLines": ',json_encode($messages),', "nbIps": ', count($chatRoom->users),'}';
 	exit;
 }
 else
