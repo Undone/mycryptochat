@@ -9,9 +9,6 @@
         <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <meta name="viewport" content="width=device-width" />
         <link href="styles/myCryptoChat.css" rel="stylesheet"/>
-
-        <script src="scripts/modernizr.js"></script>
-
     </head>
     <body>
         <header>
