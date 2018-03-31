@@ -86,7 +86,7 @@ class DbManager
     
     function DeleteChatroom($chatRoomId) {
         try {
-            $query = 'DELETE FROM messages WHERE id = ?';
+            $query = 'DELETE FROM messages WHERE roomid = ?';
             
             $req = $this->db->prepare($query);
             
