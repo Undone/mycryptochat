@@ -1,14 +1,30 @@
 <?php
+
 // modify it: replace 'f-rjng24!1r5TRHHgnjrt' by some random characters
-define('SEED', 'f-rjng24!1r5TRHHgnjrt');
+const SEED = 'f-rjng24!1r5TRHHgnjrt';
 
 // number of messages to keep
-define('NB_MESSAGES_TO_KEEP', 100);
+const NB_MESSAGES_TO_KEEP = 100;
 
 // number of days to delete an idle chat room
-define('DAYS_TO_DELETE_IDLE_CHATROOM', 60);
+const DAYS_TO_DELETE_IDLE_CHATROOM = 60;
 
-define('NB_SECONDS_USER_TO_BE_DISCONNECTED', 35);
+const NB_SECONDS_USER_TO_BE_DISCONNECTED = 35;
+
+// choose the type of database you want to use
+// MySQL 	= DATABASE_MYSQL
+// SQLite 	= DATABASE_SQLITE
+const DB_TYPE		= DATABASE_SQLITE;
+
+// mysql database name
+const DB_NAME 		= "mycryptochat";
+
+// mysql server address
+const DB_HOST 		= "localhost";
+
+// mysql credentials
+const DB_USER 		= "mycryptochat";
+const DB_PASSWORD 	= "mycryptochat";
 
 $allowedTimes = array(
     5 => '5 minutes',

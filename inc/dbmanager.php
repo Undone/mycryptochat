@@ -1,12 +1,25 @@
 <?php
-class DbManager {
+class DbManager
+{
     private $db;
     
-    function DbManager() {
+    function DbManager()
+	{
         try {
-            $this->db = new PDO('sqlite:' . DB_FILE_NAME);
-            $this->db->setAttribute(PDO::ATTR_PERSISTENT, true /*, PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION*/);
-            $this->db->exec('PRAGMA temp_store = MEMORY; PRAGMA synchronous=OFF;');
+			if (DB_TYPE == DATABASE_SQLITE)
+			{
+				$this->db = new PDO('sqlite:' . DB_FILE_NAME);
+				$this->db->setAttribute(PDO::ATTR_PERSISTENT, true /*, PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION*/);
+				$this->db->exec('PRAGMA temp_store = MEMORY; PRAGMA synchronous=OFF;');
+			}
+			elseif (DB_TYPE == DATABASE_MYSQL)
+			{
+				$this->db = new PDO("mysql:dbname=".DB_NAME.";host=".DB_HOST, DB_USER, DB_PASSWORD);
+			}
+			else
+			{
+				die("Invalid DB_TYPE, check your configuration");
+			}
         }
         catch (Exception $e) 
         {
@@ -20,13 +33,22 @@ class DbManager {
             die('Parameter error.');   
         }
         try {
-			$query = 'INSERT INTO ChatRoom ( Id, DateCreation, DateLastNewMessage, ConnectedUsers, DateEnd, NoMoreThanOneVisitor, IsRemovable, RemovePassword, UserHash )';
-			$query .= ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+			$query = 'INSERT INTO rooms (id, created, lastmessage, users, expire, singleuser, userhash, removable, removepassword) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 			
 			$req = $this->db->prepare($query);
 
-			$req->execute(array($chatRoom->id, $chatRoom->dateCreation, $chatRoom->dateLastNewMessage, json_encode($chatRoom->users)
-								, $chatRoom->dateEnd, $chatRoom->noMoreThanOneVisitor ? 1 : 0, $chatRoom->isRemovable ? 1 : 0, $chatRoom->removePassword, $chatRoom->userId));
+			$req->execute(array(
+				$chatRoom->id,
+				$chatRoom->dateCreation,
+				$chatRoom->dateLastNewMessage,
+				json_encode($chatRoom->users),
+				$chatRoom->dateEnd,
+				$chatRoom->noMoreThanOneVisitor ? 1 : 0,
+				$chatRoom->userId,
+				$chatRoom->isRemovable ? 1 : 0,
+				$chatRoom->removePassword
+			));
+			
             if($this->db->errorCode() != '00000') 
             {
                 die('Error: database error.');
@@ -41,7 +63,7 @@ class DbManager {
     
     function CleanChatrooms($time) {
         try {
-            $query = 'DELETE FROM ChatMessage WHERE IdChatRoom IN (SELECT Id FROM ChatRoom WHERE ( DateEnd <> 0 AND DateEnd < ? ) OR DateLastNewMessage < ?)';
+            $query = 'DELETE FROM messages WHERE roomid IN (SELECT id FROM rooms WHERE ( expire <> 0 AND expire < ? ) OR lastmessage < ?)';
 			
 			$idleTime = $time - (DAYS_TO_DELETE_IDLE_CHATROOM * 24 * 60 * 60);
             
@@ -49,7 +71,7 @@ class DbManager {
             
             $req->execute(array($time, $idleTime));
             
-            $query = 'DELETE FROM ChatRoom WHERE ( DateEnd <> 0 AND DateEnd < ? ) OR DateLastNewMessage < ?';
+            $query = 'DELETE FROM rooms WHERE ( expire <> 0 AND expire < ? ) OR lastmessage < ?';
             
             $req = $this->db->prepare($query);
             
@@ -64,13 +86,13 @@ class DbManager {
     
     function DeleteChatroom($chatRoomId) {
         try {
-            $query = 'DELETE FROM ChatMessage WHERE IdChatRoom = ?';
+            $query = 'DELETE FROM messages WHERE id = ?';
             
             $req = $this->db->prepare($query);
             
             $req->execute(array($chatRoomId));
             
-            $query = 'DELETE FROM ChatRoom WHERE Id = ?';
+            $query = 'DELETE FROM rooms WHERE id = ?';
             
             $req = $this->db->prepare($query);
             
@@ -89,7 +111,7 @@ class DbManager {
         }
         
         try {            
-            $query = 'SELECT Id, DateCreation, DateLastNewMessage, ConnectedUsers, DateEnd, NoMoreThanOneVisitor, IsRemovable, RemovePassword, UserHash FROM ChatRoom WHERE Id = ?';
+            $query = 'SELECT id, created, lastmessage, users, expire, singleuser, userhash, removable, removepassword FROM rooms WHERE id = ?';
             
             $req = $this->db->prepare($query);
             
@@ -104,15 +126,15 @@ class DbManager {
             $resultRow = $result[0];
             
             $chatRoom = new ChatRoom;
-            $chatRoom->id = $resultRow['Id'];
-            $chatRoom->dateCreation = $resultRow['DateCreation'];
-            $chatRoom->dateLastNewMessage = $resultRow['DateLastNewMessage'];
-            $chatRoom->users = json_decode($resultRow['ConnectedUsers'], true);
-            $chatRoom->dateEnd = $resultRow['DateEnd'];
-            $chatRoom->noMoreThanOneVisitor = $resultRow['NoMoreThanOneVisitor'] == 1;
-			$chatRoom->isRemovable = $resultRow['IsRemovable'] == 1;
-			$chatRoom->removePassword = $resultRow['RemovePassword'];
-			$chatRoom->userId = $resultRow['UserHash'];
+            $chatRoom->id = $resultRow['id'];
+            $chatRoom->dateCreation = $resultRow['created'];
+            $chatRoom->dateLastNewMessage = $resultRow['lastmessage'];
+            $chatRoom->users = json_decode($resultRow['users'], true);
+            $chatRoom->dateEnd = $resultRow['expire'];
+            $chatRoom->noMoreThanOneVisitor = $resultRow['singleuser'] == 1;
+			$chatRoom->userId = $resultRow['userhash'];
+			$chatRoom->isRemovable = $resultRow['removable'] == 1;
+			$chatRoom->removePassword = $resultRow['removepassword'];
             
             return $chatRoom;
         }
@@ -125,7 +147,7 @@ class DbManager {
     
     function UpdateChatRoomUsers($chatRoom) {
         try {
-            $query = 'UPDATE ChatRoom SET ConnectedUsers = ? WHERE Id = ?';
+            $query = 'UPDATE rooms SET users = ? WHERE id = ?';
             
             $req = $this->db->prepare($query);
             
@@ -145,20 +167,21 @@ class DbManager {
     
     function GetLastMessages($chatRoomId, $nbMessages) {
         try {
-            $query = 'SELECT Message, Hash, User, Date FROM ChatMessage WHERE IdChatRoom = ? ORDER BY Date DESC LIMIT ?';
+            $query = 'SELECT message, hash, user, date FROM messages WHERE roomid = :id ORDER BY date DESC LIMIT :limit';
             
             $req = $this->db->prepare($query);
-            
-            $req->execute(array($chatRoomId, $nbMessages));
+			$req->bindValue(":id", $chatRoomId, PDO::PARAM_STR);
+			$req->bindValue(":limit", $nbMessages, PDO::PARAM_INT);
+			$req->execute();
             
             $messages = array();
             
             while ($line = $req->fetch()) { 
                 $chatMessage = new ChatMessage;
-                $chatMessage->message = $line['Message'];
-                $chatMessage->hash = $line['Hash'];
-                $chatMessage->userId = $line['User'];
-                $chatMessage->date = $line['Date'];
+                $chatMessage->message = $line['message'];
+                $chatMessage->hash = $line['hash'];
+                $chatMessage->userId = $line['user'];
+                $chatMessage->date = $line['date'];
                 array_unshift($messages, $chatMessage);
             } 
             
@@ -173,7 +196,7 @@ class DbManager {
     
     function UpdateChatRoomDateLastMessage($chatRoomId, $time) {
         try {
-            $query = 'UPDATE ChatRoom SET DateLastNewMessage = ? WHERE Id = ?';
+            $query = 'UPDATE rooms SET lastmessage = ? WHERE id = ?';
             
             $req = $this->db->prepare($query);
             
@@ -193,7 +216,7 @@ class DbManager {
     
     function AddMessage($chatRoomId, $message, $userMessage, $hash, $time) {
         try {
-            $query = 'INSERT INTO ChatMessage ( IdChatRoom, Message, Hash, User, Date ) VALUES ( ?, ?, ?, ?, ? )';
+            $query = 'INSERT INTO messages (roomid, message, hash, user, date) VALUES (?, ?, ?, ?, ?)';
             
             $req = $this->db->prepare($query);
             
@@ -213,7 +236,7 @@ class DbManager {
     
     function GetNbChatRooms() {
         try {
-            $query = 'SELECT COUNT(Id) FROM ChatRoom';
+            $query = 'SELECT COUNT(id) FROM rooms';
             
             $req = $this->db->prepare($query);
             
@@ -238,7 +261,7 @@ class DbManager {
     
     function GetNbMessages() {
         try {
-            $query = 'SELECT COUNT(IdChatRoom) FROM ChatMessage';
+            $query = 'SELECT COUNT(roomid) FROM messages';
             
             $req = $this->db->prepare($query);
             
