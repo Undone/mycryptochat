@@ -10,6 +10,7 @@ $dbManager 			= new DbManager();
 $roomid 			= filter_input(INPUT_POST, "roomId");
 $dateLastNewMessage = filter_input(INPUT_POST, "dateLastGetMessages");
 $chatRoom 			= $dbManager->GetChatroom($roomid);
+$updateDatabase		= false;
 
 if (!$chatRoom)
 {
@@ -34,16 +35,18 @@ foreach($chatRoom->users as $key => $user)
 	if($user['id'] == $userHash)
 	{
 		$currentUser = $user;
+		$currentUser['dateLastSeen'] = $time;
 	}
 
-	if(!$chatRoom->noMoreThanOneVisitor && ($user['dateLastSeen'] + NB_SECONDS_USER_TO_BE_DISCONNECTED) < $time)
+	// If the user hasn't pinged for NB_SECONDS_USER_TO_BE_DISCONNECTED, then disassociate the user from the room
+	if(($user['dateLastSeen'] + NB_SECONDS_USER_TO_BE_DISCONNECTED) < $time)
 	{
 		unset($chatRoom->users[$key]);
+		$updateDatabase = true;
 	}
 }
 
 // If the current user isn't associated with the current room, add him
-// Otherwise update current users last seen timestamp
 if (!$currentUser)
 {
 	$currentUser = array();
@@ -51,22 +54,21 @@ if (!$currentUser)
 	$currentUser['dateLastSeen'] = $time;
 	
 	$chatRoom->addUser($currentUser);
-	$dbManager->UpdateChatRoomUsers($chatRoom);
-}
-else
-{
-	$currentUser['dateLastSeen'] = $time;
+	$updateDatabase = true;
 }
 
-// If the room is only allowed to have 2 users, delete it when another user joins
+// If the room is only allowed to have 2 users, delete it when a third user joins
 if($chatRoom->noMoreThanOneVisitor && count($chatRoom->users) > 2)
 {
 	$dbManager->DeleteChatroom($roomid);
 	exit;
 }
 
-// Save changes to the database
-$dbManager->UpdateChatRoomUsers($chatRoom);
+// If changes have been made, save them to the database
+if ($updateDatabase)
+{
+	$dbManager->UpdateChatRoomUsers($chatRoom);
+}
 
 // Check if there are messages that should be sent
 if($dateLastNewMessage < $chatRoom->dateLastNewMessage)
