@@ -1,3 +1,6 @@
+<?php
+	require "inc/constants.php";
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -38,18 +41,16 @@
     MyCryptoChat is a simple PHP encrypted chat rooms manager. Everything is encrypted on the client side, so noone can spy on what you say.<br />
     <br />
     
-    <a href="https://mycryptochatphp.codeplex.com/">More informations here</a>
+    <a href="https://github.com/Undone/mycryptochat" target="_blank">GitHub</a>
     <br /><br />
-    Author: Tommy of <a href="http://blog.howtommy.net">HowTommy.net</a>
-    <br />
-    <a href="http://blog.howtommy.net/?d=2010/01/01/01/01/01-me-contacter">Contact</a>
+	This is a fork of MyCryptoChat v1.0.4 by Tommy of <a href="http://blog.howtommy.net">HowTommy.net</a>
 </p>
             </section>
         </div>
         <footer>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p>&copy; 2013 - MyCryptoChat <?php require 'inc/constants.php'; echo MYCRYPTOCHAT_VERSION; ?> by HowTommy.net</p>
+                    <p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
                 </div>
             </div>
         </footer>
