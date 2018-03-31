@@ -1,6 +1,6 @@
 <?php
-require 'inc/conf.php';
 require 'inc/constants.php';
+require 'inc/conf.php';
 require 'inc/init.php';
 require 'inc/functions.php';
 require 'inc/classes.php';
@@ -54,7 +54,7 @@ $nbMessages = $dbManager->GetNbMessages();
     <footer>
         <div class="content-wrapper">
             <div class="float-left">
-                <p>&copy; 2013 - MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by HowTommy.net</p>
+                <p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
             </div>
         </div>
     </footer>
