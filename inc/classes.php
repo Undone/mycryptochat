@@ -1,5 +1,6 @@
 <?php
-	class ChatRoom {
+	class ChatRoom
+	{
 		public $id;
 		public $dateCreation;
 		public $dateLastNewMessage;
@@ -9,16 +10,76 @@
 		public $noMoreThanOneVisitor;
 		public $isRemovable;
 		public $removePassword;
-		public $userId;
+		
+		public function __construct($id)
+		{
+			$this->id = $id;
+		}
 		
 		public function addUser($user)
 		{
-			array_push($this->users, $user);
+			if (!in_array($user, $this->users))
+			{
+				array_push($this->users, $user);
+			}
+		}
+		
+		public function removeUser($user)
+		{
+			foreach($this->users as $key => $value)
+			{
+				if ($user->session == $value->session)
+				{
+					unset($this->users[$key]);
+				}
+			}
 		}
 	}
-	class ChatMessage {
+	
+	class ChatMessage
+	{
 		public $message;
-		public $hash;
-		public $userId;
+		public $user;
 		public $date;
+		public $isEvent = false;
+	}
+	
+	class ChatUser
+	{
+		public $id;
+		public $username;
+		public $roomid;
+		public $lastSeen;
+		
+		public function __construct($id = null)
+		{
+			if ($id)
+			{
+				$this->id 		= $id;
+				$this->lastSeen = time();
+			}
+		}
+		
+		public function setUsername($username)
+		{
+			$this->username = $username;
+		}
+		
+		public static function Create($roomid)
+		{
+			$session = generateRandomHash();
+			setcookie($roomid, $session);
+		
+			$user = new ChatUser($session);
+			$user->roomid = $roomid;
+			
+			return $user;
+		}
+		
+		public static function GetSession($roomid)
+		{
+			$session = filter_input(INPUT_COOKIE, $roomid);
+			
+			return $session;
+		}
 	}

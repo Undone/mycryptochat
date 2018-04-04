@@ -1,10 +1,6 @@
 ﻿function sendMessage()
 {
-    if ($.trim($("#userName").val()) == "")
-	{
-        alert("Please choose a name!");
-    }
-	else if (pageKey() == "" || pageKey() == "=")
+	if (pageKey() == "" || pageKey() == "=")
 	{
         alert("The key is missing (the part of the website url after '#').");
     }
@@ -16,7 +12,7 @@
 
             $.post("sendMessage.php", {
 				roomId: roomId,
-				user: zeroCipher(key, $.trim($("#userName").val())),
+				user: sessionToken,
 				message: zeroCipher(key, $.trim($("#textMessage").val()))
 			}, function(data) {
                 if (data != false)
@@ -37,11 +33,13 @@
 
 var isRefreshTitle = false;
 var refreshTitleInterval;
-var nbIps = 1;
 
-function getMessages(changeTitle) {
+function getMessages(changeTitle)
+{
     var key = pageKey();
-    $.post("getMessages.php", { roomId: roomId, dateLastGetMessages: dateLastGetMessages }, function (data) {
+	
+    $.post("getMessages.php", { roomId: roomId, dateLastGetMessages: dateLastGetMessages }, function (data)
+	{
         if (data == "noRoom")
 		{
             // closed conversation
@@ -54,19 +52,19 @@ function getMessages(changeTitle) {
             $("#chatroom").html("<i>This conversation self-destroyed. It was only created for one visitor.</i>");
             stopTimerCheck();
         }
-		else if (data != "noNew")
+		else if (data == "invalid_user")
 		{
-            if (data.chatLines == undefined)
+			$("#chatroom").html("<i>Your session has expired.</i>");
+		}
+		else if (data)
+		{
+			$("#nbUsers").html(data.userCount);
+			
+			if (data.userCount == 1 && (key == "" || key == "="))
 			{
-                $("#nbUsers").html(data.nbIps);
-            }
-			else if (data.chatLines == "")
-			{
-                if (key == "" || key == "=")
-				{
-					// Generate key
-                    document.location.hash = "#"+ sjcl.codec.base64.fromBits(sjcl.random.randomWords(8));
-                }
+				// Generate key
+				document.location.hash = "#"+ sjcl.codec.base64.fromBits(sjcl.random.randomWords(8));
+				
                 $("#chatroom").html("<i>No messages yet...</i>");
             }
 			else if (key == "" || key == "=")
@@ -75,43 +73,56 @@ function getMessages(changeTitle) {
 
                 stopTimerCheck();
             }
-			else
+			else if (data.chatLines)
 			{
                 var hasErrors = false;
                 var hasElements = false;
                 var chatRoom = $("#chatroom");
                 chatRoom.html("");
 
-                nbIps = data.nbIps;
-                $("#nbUsers").html(data.nbIps);
+                for (i = 0; i < data.chatLines.length; i++)
+				{
+					var user 		= data.chatLines[i].user;
+					var message 	= data.chatLines[i].message;
+					var isEvent 	= data.chatLines[i].isEvent;
+					var date		= data.chatLines[i].date;
+					
+					// Event messages are not encrypted, but everything else is
+					if (isEvent === "1")
+					{
+						chatRoom.append("<span class='chathour'>(" + getDateFromTimestamp(date) + ")</span> ");
+						chatRoom.append("<b>" + htmlEncode(user) + "</b> " + htmlEncode(message) + "<br/>");
+					}
+					else
+					{
+						message = zeroDecipher(key, message);
 
-                for (i = 0; i < data.chatLines.length; i++) {
-                    try {
-                        var user = zeroDecipher(key, data.chatLines[i].userId);
-                        var decryptedMessage = zeroDecipher(key, data.chatLines[i].message);
+						if (vizhash.supportCanvas())
+						{
+							var vhash = vizhash.canvasHash(user, 15, 10);
+							chatRoom.append("<span class='chathour'>(" + getDateFromTimestamp(date) + ")</span> ");
+							chatRoom.append(vhash.canvas);
+							chatRoom.append(" <a onclick='addText(\" @" + htmlEncode(user) + ": \"); return false;' class='userNameLink' href='#'><b>" + htmlEncode(user) + "</b></a> : " + replaceUrlTextWithUrl(htmlEncode(message)).replace(/(?:\r\n|\r|\n)/g, '<br />') + "<br />");
+						}
+						else
+						{
+							chatRoom.append("<i>" + date + "</i> - <a onclick='addText(\" @" + htmlEncode(user) + ": \"); return false;' class='userNameLink' href='#'><b>" + htmlEncode(user) + "</b></a> : ");
+							chatRoom.append(" <b>" + htmlEncode(user) + "</b> : " + replaceUrlTextWithUrl(htmlEncode(message)).replace(/(?:\r\n|\r|\n)/g, '<br />') + "<br />");
+						}
+					}
 
-                        hasElements = true;
-
-                        if (vizhash.supportCanvas()) {
-                            var vhash = vizhash.canvasHash(data.chatLines[i].hash, 15, 10);
-                            chatRoom.append("<span class='chathour'>(" + getDateFromTimestamp(data.chatLines[i].date) + ")</span> ");
-                            chatRoom.append(vhash.canvas);
-                            chatRoom.append(" <a onclick='addText(\" @" + htmlEncode(user) + ": \"); return false;' class='userNameLink' href='#'><b>" + htmlEncode(user) + "</b></a> : " + replaceUrlTextWithUrl(htmlEncode(decryptedMessage)).replace(/(?:\r\n|\r|\n)/g, '<br />') + "<br />");
-                        } else {
-                            chatRoom.append("<i>" + data.chatLines[i].date + "</i> - <a onclick='addText(\" @" + htmlEncode(user) + ": \"); return false;' class='userNameLink' href='#'><b>" + htmlEncode(user) + "</b></a> : ");
-                            chatRoom.append(" <b>" + htmlEncode(user) + "</b> : " + replaceUrlTextWithUrl(htmlEncode(decryptedMessage)).replace(/(?:\r\n|\r|\n)/g, '<br />') + "<br />");
-                        }
-                    } catch (e) {
-                        hasErrors = true;
-                    }
+					hasElements = true;
                 }
-                if (!hasElements && hasErrors) {
+                if (!hasElements && hasErrors)
+				{
                     // wrong key error
                     chatRoom.html("The key seems to be corrupted. Are you sure that you copied the full URL (with #xxxxxxxxxxxxxxxx-xxxxxxx-xxxxxxxx) ?");
 
                     stopTimerCheck();
-                } else {
-                    var objDiv = document.getElementById("chatroom");
+                }
+				else
+				{
+					var objDiv = document.getElementById("chatroom");
                     objDiv.scrollTop = objDiv.scrollHeight;
                     dateLastGetMessages = data.dateLastGetMessages;
 

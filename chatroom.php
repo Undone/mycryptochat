@@ -8,7 +8,23 @@
 
     $dbManager = new DbManager();
 
-    $chatRoom = $dbManager->GetChatroom($_GET['id']);
+    $roomid		= filter_input(INPUT_GET, "id");
+	$username 	= filter_input(INPUT_POST, "username");
+	$chatRoom 	= $dbManager->GetChatroom($roomid);
+	$session	= ChatUser::GetSession($roomid);
+	$user		= $dbManager->getUser($session);
+	
+	if (!$user && $username)
+	{
+		// Create new session
+		$user = ChatUser::Create($roomid);
+		$user->setUsername($username);
+		
+		$dbManager->saveUser($user);
+		$chatRoom->addUser($user);
+		
+		$dbManager->addEventMessage($user, "joined the room");
+	}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,18 +54,15 @@
             </div>
         </div>
     </header>
+	<?php if ($user) { ?>
     <div id="body">
         <section class="content-wrapper main-content clear-fix">
             <h2>MyCryptoChat</h2>
             <div class="mb20">Chat with friends without anyone spying on what you say!</div>
-
             <div id="chatroom"></div>
             <div id="divUsers"><span id="nbUsers">1</span> user(s) online</div>
-
             <div>
-                Name:
-
-    <input type="text" id="userName" /><br />
+				<p>Username: <?php echo $user->username; ?></p>
                 <textarea id="textMessage" onkeydown="if (event.keyCode == 13 && !event.shiftKey) { sendMessage(); }"></textarea><br />
                 <input type="button" value="Send" id="sendMessage" onclick="sendMessage();" /><br /><br />
 				<?php 
@@ -64,6 +77,20 @@
             </div>
         </section>
     </div>
+	<script type="text/javascript">
+		var sessionToken = "<?php echo $user->id; ?>";
+	</script>
+	<?php } else { ?>
+	<div id="body_username">
+		<section class="content-wrapper main-content clear-fix">
+			<h2>Join chatroom</h2>
+			<div class="mb20">You need to choose a username before joining the chatroom</div>
+			<form method="POST">
+				<label>Username:  <input type="text" name="username"/> <input type="submit" value="Save"/></label>
+			</form>
+		</section>
+	</div>
+	<?php } ?>
     <footer>
         <div class="content-wrapper">
             <div class="float-left">
@@ -71,12 +98,12 @@
             </div>
         </div>
     </footer>
-    <script src="scripts/jquery.js"></script>
+	<script src="scripts/jquery.js"></script>
+    <script type="text/javascript" src="scripts/zerobin.js"></script>
+	<script defer type="text/javascript" src="scripts/myCryptoChat.js"></script>
     <script type="text/javascript">
-        var roomId = '<?php echo htmlspecialchars($_GET['id'], ENT_QUOTES, 'UTF-8'); ?>';
+        var roomId = '<?php echo htmlspecialchars($roomid, ENT_QUOTES, 'UTF-8'); ?>';
         var dateLastGetMessages = '<?php echo microtime(true) - 24*60*60*365*3; ?>';
     </script>
-    <script type="text/javascript" src="scripts/zerobin.js"></script>
-    <script type="text/javascript" src="scripts/myCryptoChat.js"></script>
 </body>
 </html>

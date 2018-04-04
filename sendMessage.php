@@ -8,19 +8,25 @@ require 'inc/dbmanager.php';
 
 $dbManager = new DbManager();
 
-$chatRoom = $dbManager->GetChatroom($_POST['roomId']);
-$userName = $_POST['user'];
-$message = $_POST['message'];
-$time = $_SERVER['REQUEST_TIME'];
+$roomid 	= filter_input(INPUT_POST, "roomId");
+$time 		= time();
+$chatRoom 	= $dbManager->GetChatroom($roomid);
+$message 	= filter_input(INPUT_POST, "message");
+$session	= ChatUser::GetSession($roomid);
+$user		= $dbManager->getUser($session);
 
-if(!is_null($chatRoom)) {
-    $dbManager->UpdateChatRoomDateLastMessage($_POST['roomId'], $time);
-    
-    $dbManager->AddMessage($_POST['roomId'], $message, $userName, getHashForIp(), $time);
+if($user && $chatRoom)
+{
+	$chatMessage 			= new ChatMessage();
+	$chatMessage->message 	= $message;
+	$chatMessage->user 		= $user->username;
+	$chatMessage->isEvent	= false;
+	$chatMessage->date 		= $time;
+	
+    $dbManager->addMessage($roomid, $chatMessage);
     
     echo 'true';
     exit;
 }
 
 echo 'false';
-?>
