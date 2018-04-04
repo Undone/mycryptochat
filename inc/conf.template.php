@@ -9,6 +9,7 @@ const NB_MESSAGES_TO_KEEP = 100;
 // number of days to delete an idle chat room
 const DAYS_TO_DELETE_IDLE_CHATROOM = 60;
 
+// how many seconds before the user is considered timed out
 const NB_SECONDS_USER_TO_BE_DISCONNECTED = 35;
 
 // choose the type of database you want to use
