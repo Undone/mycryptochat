@@ -10,86 +10,63 @@ $dbManager 			= new DbManager();
 $roomid 			= filter_input(INPUT_POST, "roomId");
 $dateLastNewMessage = filter_input(INPUT_POST, "dateLastGetMessages");
 $chatRoom 			= $dbManager->GetChatroom($roomid);
-$updateDatabase		= false;
+$session 			= ChatUser::GetSession($roomid);
+$currentUser		= $dbManager->getUser($session);
+$time 				= time();
 
-if (!$chatRoom)
+// If the room doesn't exist or the chatroom has expired, exit
+if (!$chatRoom || $chatRoom->dateEnd != 0 && $chatRoom->dateEnd <= $time)
 {
+	echo "noRoom";
 	exit;
 }
 
-$userHash 	= getHashForIp();
-$time 		= time();
-
-// Check if the room has expired
-if($chatRoom->dateEnd != 0 && $chatRoom->dateEnd <= $time)
+// Exit if user couldn't be retrieved, TODO: better error handling
+if (!$currentUser)
 {
-	echo 'noRoom';
+	echo "invalid_user";
 	exit;
 }
 
-$currentUser = null;
+$dbManager->updateLastSeen($currentUser);
 
 // Loop over the rooms users, check if the current user is associated with the room
 foreach($chatRoom->users as $key => $user)
 {
-	if($user['id'] == $userHash)
-	{
-		$currentUser = $user;
-		
-		if (($currentUser["dateLastSeen"] + NB_SECONDS_USER_TO_BE_DISCONNECTED) < $time)
-		{
-			// The current user is considered disconnected, we need to update the timestamp
-			$updateDatabase = true;
-		}
-		
-		$currentUser['dateLastSeen'] = time();
-	}
-
 	// If the user hasn't pinged for NB_SECONDS_USER_TO_BE_DISCONNECTED, then disassociate the user from the room
-	if(($user['dateLastSeen'] + NB_SECONDS_USER_TO_BE_DISCONNECTED) < $time)
+	if(($user->lastSeen + NB_SECONDS_USER_TO_BE_DISCONNECTED) < $time)
 	{
-		unset($chatRoom->users[$key]);
-		$updateDatabase = true;
+		if ($user->id != $currentUser->id)
+		{
+			unset($chatRoom->users[$key]);
+			$dbManager->addEventMessage($user, "timed out");
+			$dbManager->deleteUser($user);
+		}
 	}
-}
-
-// If the current user isn't associated with the current room, add him
-if (!$currentUser)
-{
-	$currentUser = array();
-	$currentUser['id'] = $userHash;
-	$currentUser['dateLastSeen'] = time();
-	
-	$chatRoom->addUser($currentUser);
-	$updateDatabase = true;
 }
 
 // If the room is only allowed to have 2 users, delete it when a third user joins
 if($chatRoom->noMoreThanOneVisitor && count($chatRoom->users) > 2)
 {
 	$dbManager->DeleteChatroom($roomid);
+	echo "destroyed";
 	exit;
 }
 
-// If changes have been made, save them to the database
-if ($updateDatabase)
-{
-	$dbManager->UpdateChatRoomUsers($chatRoom);
-}
-
-// Check if there are messages that should be sent
+// Check if there are messages that should be sent to the browser
 if($dateLastNewMessage < $chatRoom->dateLastNewMessage)
 {
 	$messages = $dbManager->GetLastMessages($chatRoom->id, NB_MESSAGES_TO_KEEP);
+	
 	header('Content-Type: application/json');
-	echo '{"dateLastGetMessages": ', time(),', "chatLines": ',json_encode($messages),', "nbIps": ', count($chatRoom->users),'}';
+	echo '{"dateLastGetMessages": ', time(), ', "chatLines": ', json_encode($messages), ', "userCount": ', count($chatRoom->users),'}';
 	exit;
 }
 else
 {
 	// Update the amount of users online to the browser
     header('Content-Type: application/json');
-	echo '{ "nbIps": ', count($chatRoom->users),' }';
+	echo '{ "userCount": ', count($chatRoom->users),' }';
 	exit;
 }
 
