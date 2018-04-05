@@ -86,7 +86,7 @@
 			<h2>Join chatroom</h2>
 			<div class="mb20">You need to choose a username before joining the chatroom</div>
 			<form method="POST">
-				<label>Username:  <input type="text" name="username"/> <input type="submit" value="Save"/></label>
+				<label>Username:  <input type="text" name="username"/> <input type="submit" value="Enter"/></label>
 			</form>
 		</section>
 	</div>
