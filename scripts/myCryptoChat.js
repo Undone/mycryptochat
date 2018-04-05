@@ -3,6 +3,7 @@ var cryptoOptions = {mode: "gcm"};
 
 function sendMessage()
 {
+	// Retrieve the base64 key from the URL
 	var key = pageKey();
 	
 	if (key == "" || key == "=")
@@ -13,10 +14,13 @@ function sendMessage()
 	{
         if ($.trim($("#textMessage").val()) != "")
 		{
+			// Convert the key back to bits from base64
+			var encryptionKey = sjcl.codec.base64.toBits(key);
+			
             $.post("sendMessage.php", {
 				roomId: roomId,
 				user: sessionToken,
-				message: sjcl.encrypt(key, $.trim($("#textMessage").val()), cryptoOptions)
+				message: sjcl.encrypt(encryptionKey, $.trim($("#textMessage").val()), cryptoOptions)
 			}, function(data) {
                 if (data != false)
 				{
@@ -39,6 +43,7 @@ var refreshTitleInterval;
 
 function getMessages(changeTitle)
 {
+	// Retrieve the base64 key from the URL
     var key = pageKey();
 	
     $.post("getMessages.php", { roomId: roomId, dateLastGetMessages: dateLastGetMessages }, function (data)
@@ -65,7 +70,7 @@ function getMessages(changeTitle)
 			
 			if (data.userCount == 1 && (key == "" || key == "="))
 			{
-				// Generate key
+				// Generate key, we need to convert it to base64 for it to work in an url
 				document.location.hash = "#"+ sjcl.codec.base64.fromBits(sjcl.random.randomWords(8));
 				
                 $("#chatroom").html("<i>No messages yet...</i>");
@@ -98,7 +103,10 @@ function getMessages(changeTitle)
 					}
 					else
 					{
-						message = sjcl.decrypt(key, message);
+						// We need to convert the key from base64 back to bits
+						var decryptionKey = sjcl.codec.base64.toBits(key);
+						
+						message = sjcl.decrypt(decryptionKey, message);
 
 						if (vizhash.supportCanvas())
 						{
