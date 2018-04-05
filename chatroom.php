@@ -100,7 +100,6 @@
     </footer>
 	<script type="text/javascript" src="scripts/jquery.js"></script>
 	<script type="text/javascript" src="scripts/sjcl.js"></script>
-	<script type="text/javascript" src="scripts/scrypt.js"></script>
 	<script type="text/javascript" src="scripts/vizhash.js"></script>
 	<script type="text/javascript" src="scripts/myCryptoChat.js" defer></script>
     <script type="text/javascript">
