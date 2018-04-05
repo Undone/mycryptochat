@@ -1,6 +1,11 @@
-﻿function sendMessage()
+﻿
+var cryptoOptions = {mode: "gcm"};
+
+function sendMessage()
 {
-	if (pageKey() == "" || pageKey() == "=")
+	var key = pageKey();
+	
+	if (key == "" || key == "=")
 	{
         alert("The key is missing (the part of the website url after '#').");
     }
@@ -8,12 +13,10 @@
 	{
         if ($.trim($("#textMessage").val()) != "")
 		{
-            var key = pageKey();
-
             $.post("sendMessage.php", {
 				roomId: roomId,
 				user: sessionToken,
-				message: zeroCipher(key, $.trim($("#textMessage").val()))
+				message: sjcl.encrypt(key, $.trim($("#textMessage").val()), cryptoOptions)
 			}, function(data) {
                 if (data != false)
 				{
@@ -95,7 +98,7 @@ function getMessages(changeTitle)
 					}
 					else
 					{
-						message = zeroDecipher(key, message);
+						message = sjcl.decrypt(key, message);
 
 						if (vizhash.supportCanvas())
 						{
@@ -204,6 +207,32 @@ function addText(text) {
     editor.val("");
     editor.focus();
     editor.val(value + text);
+}
+
+/**
+ * ZeroBin 0.19
+ * @link http://sebsauvage.net/wiki/doku.php?id=php:zerobin
+ * @author sebsauvage
+ * Return the deciphering key stored in anchor part of the URL
+ */
+function pageKey()
+{
+    var key = window.location.hash.substring(1);  // Get key
+
+    // Some stupid web 2.0 services and redirectors add data AFTER the anchor
+    // (such as &utm_source=...).
+    // We will strip any additional data.
+
+    // First, strip everything after the equal sign (=) which signals end of base64 string.
+    i = key.indexOf('='); if (i>-1) { key = key.substring(0,i+1); }
+
+    // If the equal sign was not present, some parameters may remain:
+    i = key.indexOf('&'); if (i>-1) { key = key.substring(0,i); }
+
+    // Then add trailing equal sign if it's missing
+    if (key.charAt(key.length-1)!=='=') key+='=';
+
+    return key;
 }
 
 $(function () {
