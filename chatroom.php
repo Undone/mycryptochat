@@ -98,9 +98,11 @@
             </div>
         </div>
     </footer>
-	<script src="scripts/jquery.js"></script>
-    <script type="text/javascript" src="scripts/zerobin.js"></script>
-	<script defer type="text/javascript" src="scripts/myCryptoChat.js"></script>
+	<script type="text/javascript" src="scripts/jquery.js"></script>
+	<script type="text/javascript" src="scripts/sjcl.js"></script>
+	<script type="text/javascript" src="scripts/scrypt.js"></script>
+	<script type="text/javascript" src="scripts/vizhash.js"></script>
+	<script type="text/javascript" src="scripts/myCryptoChat.js" defer></script>
     <script type="text/javascript">
         var roomId = '<?php echo htmlspecialchars($roomid, ENT_QUOTES, 'UTF-8'); ?>';
         var dateLastGetMessages = '<?php echo microtime(true) - 24*60*60*365*3; ?>';

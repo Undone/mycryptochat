@@ -1,6 +1,12 @@
-﻿function sendMessage()
+﻿
+var cryptoOptions = {mode: "gcm"};
+
+function sendMessage()
 {
-	if (pageKey() == "" || pageKey() == "=")
+	// Retrieve the base64 key from the URL
+	var key = pageKey();
+	
+	if (key == "" || key == "=")
 	{
         alert("The key is missing (the part of the website url after '#').");
     }
@@ -8,12 +14,13 @@
 	{
         if ($.trim($("#textMessage").val()) != "")
 		{
-            var key = pageKey();
-
+			// Convert the key back to bits from base64
+			var encryptionKey = sjcl.codec.base64.toBits(key);
+			
             $.post("sendMessage.php", {
 				roomId: roomId,
 				user: sessionToken,
-				message: zeroCipher(key, $.trim($("#textMessage").val()))
+				message: sjcl.encrypt(encryptionKey, $.trim($("#textMessage").val()), cryptoOptions)
 			}, function(data) {
                 if (data != false)
 				{
@@ -36,6 +43,7 @@ var refreshTitleInterval;
 
 function getMessages(changeTitle)
 {
+	// Retrieve the base64 key from the URL
     var key = pageKey();
 	
     $.post("getMessages.php", { roomId: roomId, dateLastGetMessages: dateLastGetMessages }, function (data)
@@ -62,7 +70,7 @@ function getMessages(changeTitle)
 			
 			if (data.userCount == 1 && (key == "" || key == "="))
 			{
-				// Generate key
+				// Generate key, we need to convert it to base64 for it to work in an url
 				document.location.hash = "#"+ sjcl.codec.base64.fromBits(sjcl.random.randomWords(8));
 				
                 $("#chatroom").html("<i>No messages yet...</i>");
@@ -95,7 +103,10 @@ function getMessages(changeTitle)
 					}
 					else
 					{
-						message = zeroDecipher(key, message);
+						// We need to convert the key from base64 back to bits
+						var decryptionKey = sjcl.codec.base64.toBits(key);
+						
+						message = sjcl.decrypt(decryptionKey, message);
 
 						if (vizhash.supportCanvas())
 						{
@@ -204,6 +215,32 @@ function addText(text) {
     editor.val("");
     editor.focus();
     editor.val(value + text);
+}
+
+/**
+ * ZeroBin 0.19
+ * @link http://sebsauvage.net/wiki/doku.php?id=php:zerobin
+ * @author sebsauvage
+ * Return the deciphering key stored in anchor part of the URL
+ */
+function pageKey()
+{
+    var key = window.location.hash.substring(1);  // Get key
+
+    // Some stupid web 2.0 services and redirectors add data AFTER the anchor
+    // (such as &utm_source=...).
+    // We will strip any additional data.
+
+    // First, strip everything after the equal sign (=) which signals end of base64 string.
+    i = key.indexOf('='); if (i>-1) { key = key.substring(0,i+1); }
+
+    // If the equal sign was not present, some parameters may remain:
+    i = key.indexOf('&'); if (i>-1) { key = key.substring(0,i); }
+
+    // Then add trailing equal sign if it's missing
+    if (key.charAt(key.length-1)!=='=') key+='=';
+
+    return key;
 }
 
 $(function () {
