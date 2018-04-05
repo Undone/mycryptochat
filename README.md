@@ -25,3 +25,9 @@ The database type will be SQLite by default, the SQLite database is stored in `d
 If you'd rather use MySQL, edit the configuration file, change the DB_TYPE variable to DATABASE_MYSQL, and set the DB_NAME, DB_HOST, DB_USER, DB_PASSWORD variables to their right values.
 
 You can use the `structure.sql` to import the table structures to your database.
+
+
+# Known issues
+
+Microsoft Edge doesn't work as intended. It will not pass the encryption key after entering the username, this becomes an issue when you're trying to join a chat.
+You can work around this by entering the username and pasting the link again in a new tab. It's stupid but it works.
