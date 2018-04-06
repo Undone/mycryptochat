@@ -58,7 +58,7 @@
     <div id="body">
         <section class="content-wrapper main-content clear-fix">
             <h2>MyCryptoChat</h2>
-            <div class="mb20">Chat with friends without anyone spying on what you say!</div>
+            <div class="mb20">Chat using end-to-end encryption</div>
             <div id="chatroom"></div>
             <div id="divUsers"><span id="nbUsers">1</span> user(s) online</div>
             <div>

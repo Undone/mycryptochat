@@ -35,9 +35,11 @@
  <h2>About</h2>
 
 <p>
-    MyCryptoChat is a simple PHP encrypted chat rooms manager. Everything is encrypted on the client side, so noone can spy on what you say.<br />
-    <br />
-    
+    MyCryptoChat is a PHP and Javascript based chat with end-to-end encryption.
+	The database will only contain your encrypted messages, and will have no knowledge of the decryption key.
+	Encryption is provided by the Stanford Javascript Crypto Library, using 256-bit AES-GCM.
+	<br/>
+    <br/>
     <a href="https://github.com/Undone/mycryptochat" target="_blank">GitHub</a>
     <br /><br />
 	This is a fork of MyCryptoChat v1.0.4 by Tommy of <a href="http://blog.howtommy.net">HowTommy.net</a>

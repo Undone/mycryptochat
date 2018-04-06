@@ -121,7 +121,7 @@ require 'inc/functions.php';
 
             <h2>MyCryptoChat</h2>
 
-            <div class="mb20">Chat with friends without anyone spying on what you say!</div>
+            <div class="mb20">Chat using end-to-end encryption</div>
 
             <form method="POST" action="newroom.php">
                 <label for="nbMinutesToLive">Lifetime of the chat room:</label>
