@@ -5,6 +5,64 @@ var cryptoOptions = {
 	ks: 256 // Keysize: 256 bits, not actually used when using bit arrays as an encryption key
 };
 
+// Generate a key using sjcl, a word is 32 bits, 32 * 8 = 256 bits
+function generateKey()
+{
+	return sjcl.random.randomWords(8);
+}
+
+// Adds the key to the URL, browsers don't send the values after # to the server, it is completely client-side
+function setLocationHash(value)
+{
+	document.location.hash = "#" + sjcl.codec.base64url.fromBits(value);
+}
+
+function addChatMessage(elem, chatMessage, key)
+{
+	var user 		= chatMessage.user;
+	var message 	= chatMessage.message;
+	var date 		= chatMessage.date;
+	var isEvent 	= chatMessage.isEvent == "1";
+
+	// Try if we can decrypt the username and message
+	try {
+		user 		= sjcl.decrypt(key, user);
+		
+		if (!isEvent)
+		{
+			message = sjcl.decrypt(key, message);
+		}
+		
+		user 		= htmlEncode(user);
+		message 	= htmlEncode(message);
+	}
+	catch (e) {
+		// Content is encrypted and we don't have the right decryption key
+		user		= "<i>*Encrypted*</i>";
+		message		= "<i>*Encrypted*</i>";
+	}
+	
+	elem.append("<span class='chathour'>(" + getDateFromTimestamp(date) + ")</span> ");
+	
+	if (!isEvent && vizhash.supportCanvas())
+	{
+		var vhash = vizhash.canvasHash(user, 15, 10);
+		elem.append(vhash.canvas);
+		elem.append(" ");
+	}
+	
+	if (!isEvent)
+	{
+		elem.append("<a onclick='addText(\" @" + user + ": \"); return false;' class='userNameLink' href='#'><b>" + user + "</b></a> : ");
+	}
+	else
+	{
+		elem.append("<b>" + user + "</b> ");
+	}
+	
+	elem.append(replaceUrlTextWithUrl(message).replace(/(?:\r\n|\r|\n)/g, '<br />') + "<br />");
+}
+
 function sendMessage()
 {
 	// Retrieve the base64 key from the URL
@@ -66,23 +124,16 @@ function getMessages(changeTitle)
         }
 		else if (data == "invalid_user")
 		{
+			// Couldn't retrieve session from database
 			$("#chatroom").html("<i>Your session has expired.</i>");
 		}
 		else if (data)
 		{
 			$("#nbUsers").html(data.userCount);
 			
-			if (data.userCount == 1 && (key == "" || key == "="))
-			{
-				// Generate key, we need to convert it to base64 for it to work in an url
-				document.location.hash = "#"+ sjcl.codec.base64url.fromBits(sjcl.random.randomWords(8));
-				
-                $("#chatroom").html("<i>No messages yet...</i>");
-            }
-			else if (key == "" || key == "=")
+			if (key == "" || key == "=")
 			{
                 $("#chatroom").html("<i>The key is missing (the part of the website url after '#').</i>");
-
                 stopTimerCheck();
             }
 			else if (data.chatLines)
@@ -91,48 +142,20 @@ function getMessages(changeTitle)
                 var hasElements = false;
                 var chatRoom = $("#chatroom");
                 chatRoom.html("");
+				
+				// We need to convert the key from base64 back to bits
+				var decryptionKey = sjcl.codec.base64url.toBits(key);
 
                 for (i = 0; i < data.chatLines.length; i++)
 				{
-					var user 		= data.chatLines[i].user;
-					var message 	= data.chatLines[i].message;
-					var isEvent 	= data.chatLines[i].isEvent;
-					var date		= data.chatLines[i].date;
-					
-					// Event messages are not encrypted, but everything else is
-					if (isEvent === "1")
-					{
-						chatRoom.append("<span class='chathour'>(" + getDateFromTimestamp(date) + ")</span> ");
-						chatRoom.append("<b>" + htmlEncode(user) + "</b> " + htmlEncode(message) + "<br/>");
-					}
-					else
-					{
-						// We need to convert the key from base64 back to bits
-						var decryptionKey = sjcl.codec.base64url.toBits(key);
-						
-						message = sjcl.decrypt(decryptionKey, message);
-
-						if (vizhash.supportCanvas())
-						{
-							var vhash = vizhash.canvasHash(user, 15, 10);
-							chatRoom.append("<span class='chathour'>(" + getDateFromTimestamp(date) + ")</span> ");
-							chatRoom.append(vhash.canvas);
-							chatRoom.append(" <a onclick='addText(\" @" + htmlEncode(user) + ": \"); return false;' class='userNameLink' href='#'><b>" + htmlEncode(user) + "</b></a> : " + replaceUrlTextWithUrl(htmlEncode(message)).replace(/(?:\r\n|\r|\n)/g, '<br />') + "<br />");
-						}
-						else
-						{
-							chatRoom.append("<i>" + date + "</i> - <a onclick='addText(\" @" + htmlEncode(user) + ": \"); return false;' class='userNameLink' href='#'><b>" + htmlEncode(user) + "</b></a> : ");
-							chatRoom.append(" <b>" + htmlEncode(user) + "</b> : " + replaceUrlTextWithUrl(htmlEncode(message)).replace(/(?:\r\n|\r|\n)/g, '<br />') + "<br />");
-						}
-					}
-
+					addChatMessage(chatRoom, data.chatLines[i], decryptionKey);
 					hasElements = true;
                 }
+				
                 if (!hasElements && hasErrors)
 				{
                     // wrong key error
                     chatRoom.html("The key seems to be corrupted. Are you sure that you copied the full URL (with #xxxxxxxxxxxxxxxx-xxxxxxx-xxxxxxxx) ?");
-
                     stopTimerCheck();
                 }
 				else

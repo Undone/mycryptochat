@@ -62,7 +62,7 @@
             <div id="chatroom"></div>
             <div id="divUsers"><span id="nbUsers">1</span> user(s) online</div>
             <div>
-				<p>Username: <?php echo $user->username; ?></p>
+				<p>Username: <span id="usernameDisplay"><?php echo $user->username; ?></span></p>
                 <textarea id="textMessage" onkeydown="if (event.keyCode == 13 && !event.shiftKey) { sendMessage(); }"></textarea><br />
                 <input type="button" value="Send" id="sendMessage" onclick="sendMessage();" /><br /><br />
 				<?php 
@@ -85,8 +85,9 @@
 		<section class="content-wrapper main-content clear-fix">
 			<h2>Join chatroom</h2>
 			<div class="mb20">You need to choose a username before joining the chatroom</div>
-			<form method="POST">
-				<label>Username:  <input type="text" name="username"/> <input type="submit" value="Enter"/></label>
+			<form method="POST" onsubmit="encryptUsername()">
+				<label>Username:  <input type="text" id="username" required/> <input type="submit" value="Enter"/></label>
+				<input type="hidden" id="username_encrypted" name="username"/>
 			</form>
 		</section>
 	</div>
@@ -101,10 +102,54 @@
 	<script type="text/javascript" src="scripts/jquery.js"></script>
 	<script type="text/javascript" src="scripts/sjcl.js"></script>
 	<script type="text/javascript" src="scripts/vizhash.js"></script>
-	<script type="text/javascript" src="scripts/myCryptoChat.js" defer></script>
+	<script type="text/javascript" src="scripts/myCryptoChat.js"></script>
     <script type="text/javascript">
         var roomId = '<?php echo htmlspecialchars($roomid, ENT_QUOTES, 'UTF-8'); ?>';
         var dateLastGetMessages = '<?php echo microtime(true) - 24*60*60*365*3; ?>';
+		
+		// Before submitting the form, encrypt the username
+		// The plain-text value is never sent to the server
+		function encryptUsername()
+		{
+			var elem 	= document.getElementById("username");
+			var elem2	= document.getElementById("username_encrypted");
+			var key 	= pageKey();
+			
+			if (key != "" && key != "=")
+			{
+				key = sjcl.codec.base64url.toBits(key);
+
+				elem2.value = sjcl.encrypt(key, elem.value, cryptoOptions);
+			}
+		}
+		
+		$(function()
+		{
+			var key = pageKey();
+			
+			// If an encryption key has not been set
+			if (key === "=" || key == "")
+			{
+				// We need to generate a new key
+				var newkey = generateKey();
+				
+				// Append it to the URL
+				setLocationHash(newkey);
+			}
+			else
+			{
+				var elem = document.getElementById("usernameDisplay");
+				
+				if (elem !== null)
+				{
+					// Convert key from base64 to bit array
+					key = sjcl.codec.base64url.toBits(key);
+					
+					// Decrypt the displayed username
+					elem.innerHTML = sjcl.decrypt(key, elem.innerHTML);
+				}
+			}
+		});
     </script>
 </body>
 </html>
