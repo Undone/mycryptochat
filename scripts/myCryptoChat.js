@@ -1,5 +1,9 @@
 ﻿
-var cryptoOptions = {mode: "gcm"};
+var cryptoOptions = {
+	cipher: "aes",
+	mode: "gcm", // Mode: AES-GCM
+	ks: 256 // Keysize: 256 bits, not actually used when using bit arrays as an encryption key
+};
 
 function sendMessage()
 {
@@ -15,7 +19,7 @@ function sendMessage()
         if ($.trim($("#textMessage").val()) != "")
 		{
 			// Convert the key back to bits from base64
-			var encryptionKey = sjcl.codec.base64.toBits(key);
+			var encryptionKey = sjcl.codec.base64url.toBits(key);
 			
             $.post("sendMessage.php", {
 				roomId: roomId,
@@ -71,7 +75,7 @@ function getMessages(changeTitle)
 			if (data.userCount == 1 && (key == "" || key == "="))
 			{
 				// Generate key, we need to convert it to base64 for it to work in an url
-				document.location.hash = "#"+ sjcl.codec.base64.fromBits(sjcl.random.randomWords(8));
+				document.location.hash = "#"+ sjcl.codec.base64url.fromBits(sjcl.random.randomWords(8));
 				
                 $("#chatroom").html("<i>No messages yet...</i>");
             }
@@ -104,7 +108,7 @@ function getMessages(changeTitle)
 					else
 					{
 						// We need to convert the key from base64 back to bits
-						var decryptionKey = sjcl.codec.base64.toBits(key);
+						var decryptionKey = sjcl.codec.base64url.toBits(key);
 						
 						message = sjcl.decrypt(decryptionKey, message);
 
