@@ -20,21 +20,23 @@ function setLocationHash(value)
 function addChatMessage(elem, chatMessage, key)
 {
 	var user 		= chatMessage.user;
-	var message 	= chatMessage.message;
-	var date 		= chatMessage.date;
-	var isEvent 	= chatMessage.isEvent == "1";
+	var message		= chatMessage.message;
+	var date		= chatMessage.date;
+	var isEvent		= chatMessage.isEvent == "1";
 
 	// Try if we can decrypt the username and message
 	try {
-		user 		= sjcl.decrypt(key, user);
+		user		= sjcl.decrypt(key, user);
 		
+		// Event messages are not encrypted, the server does not have encryption keys it could use for this
 		if (!isEvent)
 		{
 			message = sjcl.decrypt(key, message);
 		}
 		
-		user 		= htmlEncode(user);
-		message 	= htmlEncode(message);
+		// Don't use any html tags input by the users
+		user		= htmlEncode(user);
+		message		= htmlEncode(message);
 	}
 	catch (e) {
 		// Content is encrypted and we don't have the right decryption key
