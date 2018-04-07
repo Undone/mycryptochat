@@ -3,7 +3,6 @@
 	{
 		public $id;
 		public $dateCreation;
-		public $dateLastNewMessage;
 		public $users = array();
 		public $messages = array();
 		public $dateEnd;
@@ -38,10 +37,12 @@
 	
 	class ChatMessage
 	{
+		public $id;
+		public $roomid;
 		public $message;
 		public $user;
-		public $date;
 		public $isEvent = false;
+		public $date;
 	}
 	
 	class ChatUser
