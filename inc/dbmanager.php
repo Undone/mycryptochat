@@ -94,10 +94,15 @@ class DbManager
 		$time 		= time();
 		$idleTime 	= $time - (DAYS_TO_DELETE_IDLE_CHATROOM * 24 * 60 * 60);
 		
-		// Delete expired and inactive rooms
-		$query = "DELETE FROM rooms INNER JOIN messages ON rooms.id=messages.roomid WHERE rooms.expire < :time OR MAX(messages.date) < :idletime";
+		// Delete expired rooms
+		$query = "DELETE FROM rooms WHERE rooms.expire < :time";
 		$req = $this->db->prepare($query);
 		$req->bindValue(":time", $time, PDO::PARAM_INT);
+		$req->execute();
+		
+		// Delete inactive rooms
+		$query = "DELETE FROM rooms WHERE id IN (SELECT roomid FROM messages WHERE date < :idletime ORDER BY date DESC)";
+		$req = $this->db->prepare($query);
 		$req->bindValue(":idletime", $idleTime, PDO::PARAM_INT);
 		$req->execute();
 		
