@@ -25,7 +25,6 @@ $key = randomString(20);
 // we create the chat room object
 $chatRoom 						= new ChatRoom($key);
 $chatRoom->dateCreation 		= $time;
-$chatRoom->dateLastNewMessage 	= $time;
 $chatRoom->dateEnd 				= $nbMinutesToLive != 0 ? $time + ($nbMinutesToLive * 60) : 0;
 $chatRoom->noMoreThanOneVisitor = $selfDestroys;
 $chatRoom->isRemovable 			= $isRemovable;
