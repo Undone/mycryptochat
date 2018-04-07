@@ -15,18 +15,21 @@ $message 	= filter_input(INPUT_POST, "message");
 $session	= ChatUser::GetSession($roomid);
 $user		= $dbManager->getUser($session);
 
+header('Content-Type: application/json');
+
 if($user && $chatRoom)
 {
 	$chatMessage 			= new ChatMessage();
+	$chatMessage->roomid	= $roomid;
 	$chatMessage->message 	= $message;
 	$chatMessage->user 		= $user->username;
 	$chatMessage->isEvent	= false;
 	$chatMessage->date 		= $time;
 	
-    $dbManager->addMessage($roomid, $chatMessage);
+    $dbManager->addMessage($chatMessage);
     
-    echo 'true';
-    exit;
+    echo json_encode(true);
+	exit;
 }
 
-echo 'false';
+echo json_encode(false);

@@ -14,7 +14,7 @@ $nbMessages = $dbManager->GetNbMessages();
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Stats - MyCryptoChat by HowTommy.net</title>
+    <title>Stats - MyCryptoChat</title>
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
     <link href="styles/myCryptoChat.css" rel="stylesheet" />
