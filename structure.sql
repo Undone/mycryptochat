@@ -39,7 +39,8 @@ ALTER TABLE `rooms`
   ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `sessions`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `roomid` (`roomid`);
 
 
 ALTER TABLE `messages`
