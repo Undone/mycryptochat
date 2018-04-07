@@ -1,11 +1,11 @@
 <?php
 class DbManager
 {
-    private $db;
-    
-    public function __construct()
+	private $db;
+	
+	public function __construct()
 	{
-        try
+		try
 		{
 			if (DB_TYPE == DATABASE_SQLITE)
 			{
@@ -21,13 +21,13 @@ class DbManager
 			{
 				die("Invalid DB_TYPE, check your configuration");
 			}
-        }
-        catch (Exception $e) 
-        {
-            logException($e);
-            die('Error: database error.');
-        }
-    }
+		}
+		catch (Exception $e) 
+		{
+			logException($e);
+			die('Error: database error.');
+		}
+	}
 	
 	public function deleteUser($user)
 	{
@@ -72,72 +72,67 @@ class DbManager
 		
 		return $result[0];
 	}
-    
-    public function createChatroom($chatRoom)
+	
+	public function createChatroom($chatRoom)
 	{
-		$query = 'INSERT INTO rooms (id, created, lastmessage, expire, singleuser, removable, removepassword) VALUES (?, ?, ?, ?, ?, ?, ?)';
+		$query = 'INSERT INTO rooms (id, created, expire, singleuser, removable, removepassword) VALUES (?, ?, ?, ?, ?, ?)';
 		
 		$req = $this->db->prepare($query);
 
 		$req->execute(array(
 			$chatRoom->id,
 			$chatRoom->dateCreation,
-			$chatRoom->dateLastNewMessage,
 			$chatRoom->dateEnd,
 			$chatRoom->noMoreThanOneVisitor ? 1 : 0,
 			$chatRoom->isRemovable ? 1 : 0,
 			$chatRoom->removePassword
 		));
-    }
-    
-    public function cleanChatrooms()
+	}
+	
+	public function cleanChatrooms()
 	{
 		$time 		= time();
 		$idleTime 	= $time - (DAYS_TO_DELETE_IDLE_CHATROOM * 24 * 60 * 60);
-        
-		// Delete messages
-		$query = 'DELETE FROM messages WHERE roomid IN (SELECT id FROM rooms WHERE ( expire <> 0 AND expire < ? ) OR lastmessage < ?)';
 		
+		// Delete expired and inactive rooms
+		$query = "DELETE FROM rooms INNER JOIN messages ON rooms.id=messages.roomid WHERE rooms.expire < :time OR MAX(messages.date) < :idletime";
 		$req = $this->db->prepare($query);
-		$req->execute(array($time, $idleTime));
+		$req->bindValue(1, $time, PDO::PARAM_INT);
+		$req->bindValue(2, $idleTime, PDO::PARAM_INT);
+		$req->execute();
 		
-		// Delete sessions
-		$query = 'DELETE FROM sessions WHERE roomid IN (SELECT id FROM rooms WHERE ( expire <> 0 AND expire < ? ) OR lastmessage < ?)';
-		
+		// Delete messages which don't have a room anymore
+		$query = "DELETE FROM messages WHERE roomid NOT IN (SELECT id FROM rooms)";
 		$req = $this->db->prepare($query);
-		$req->execute(array($time, $idleTime));
+		$req->execute();
 		
-        // Delete rooms
-		$query = 'DELETE FROM rooms WHERE ( expire <> 0 AND expire < ? ) OR lastmessage < ?';
-        
+		// Delete sessions which don't have a room anymore
+		$query = "DELETE FROM sessions WHERE roomid NOT IN (SELECT id FROM rooms)";
 		$req = $this->db->prepare($query);
-		$req->execute(array($time, $idleTime));
-    }
-    
-    function DeleteChatroom($chatRoomId) {
-        try {
-            $query = 'DELETE FROM messages WHERE roomid = ?';
-            
-            $req = $this->db->prepare($query);
-            
-            $req->execute(array($chatRoomId));
-            
-            $query = 'DELETE FROM rooms WHERE id = ?';
-            
-            $req = $this->db->prepare($query);
-            
-            $req->execute(array($chatRoomId));
-        }
-        catch (Exception $e) 
-        {
-            logException($e);
-            die('Error: database error.');
-        }
-    }
-    
-    public function GetChatroom($id)
+		$req->execute();
+	}
+	
+	public function deleteChatroom($roomid)
 	{
-		$query = 'SELECT created, lastmessage, expire, singleuser, removable, removepassword FROM rooms WHERE id = ?';
+		$query = "DELETE FROM sessions WHERE roomid = :roomid";
+		$req = $this->db->prepare($query);
+		$req->bindValue(1, $roomid, PDO::PARAM_STR);
+		$req->execute();
+		
+		$query = "DELETE FROM messages WHERE roomid = :roomid";
+		$req = $this->db->prepare($query);
+		$req->bindValue(1, $roomid, PDO::PARAM_STR);
+		$req->execute();
+		
+		$query = "DELETE FROM rooms WHERE id = :roomid";
+		$req = $this->db->prepare($query);
+		$req->bindValue(1, $roomid, PDO::PARAM_STR);
+		$req->execute();
+	}
+	
+	public function GetChatroom($id)
+	{
+		$query = 'SELECT created, expire, singleuser, removable, removepassword FROM rooms WHERE id = ?';
 		$req = $this->db->prepare($query);
 		$req->bindParam(1, $id, PDO::PARAM_STR);
 		$req->execute();
@@ -148,12 +143,11 @@ class DbManager
 		{
 			return;
 		}
-        
+		
 		$resultRow = $result[0];
-        
+		
 		$chatRoom 						= new ChatRoom($id);
 		$chatRoom->dateCreation 		= $resultRow['created'];
-		$chatRoom->dateLastNewMessage 	= $resultRow['lastmessage'];
 		$chatRoom->dateEnd 				= $resultRow['expire'];
 		$chatRoom->noMoreThanOneVisitor = $resultRow['singleuser'] == 1;
 		$chatRoom->isRemovable 			= $resultRow['removable'] == 1;
@@ -168,9 +162,9 @@ class DbManager
 		$users = $req->fetchAll(PDO::FETCH_CLASS, "ChatUser");
 		
 		$chatRoom->users = $users;
-        
+		
 		return $chatRoom;
-    }
+	}
 	
 	public function updateLastSeen($user)
 	{
@@ -182,14 +176,15 @@ class DbManager
 			$user->id
 		));
 	}
-    
-    function GetLastMessages($chatRoomId, $nbMessages)
+	
+	public function getLastMessages($roomid, $maxMessages, $maxId = 0)
 	{
-		$query = 'SELECT message, user, isEvent, date FROM messages WHERE roomid = :id ORDER BY date DESC LIMIT :limit';
+		$query = 'SELECT * FROM messages WHERE roomid = :id AND id > :maxid ORDER BY date DESC LIMIT :limit';
 
 		$req = $this->db->prepare($query);
-		$req->bindValue(":id", $chatRoomId, PDO::PARAM_STR);
-		$req->bindValue(":limit", $nbMessages, PDO::PARAM_INT);
+		$req->bindValue(":id", $roomid, PDO::PARAM_STR);
+		$req->bindValue(":maxid", $maxId, PDO::PARAM_INT);
+		$req->bindValue(":limit", $maxMessages, PDO::PARAM_INT);
 		$req->execute();
 		
 		$messages = $req->fetchAll(PDO::FETCH_CLASS, "ChatMessage");
@@ -198,89 +193,81 @@ class DbManager
 		$messages = array_reverse($messages);
 
 		return $messages;
-    }
-    
-    public function addMessage($roomid, $chatMessage)
+	}
+	
+	public function addMessage($chatMessage)
 	{
 		$query = 'INSERT INTO messages (roomid, message, user, isEvent, date) VALUES (?, ?, ?, ?, ?)';
 
 		$req = $this->db->prepare($query);
 		$req->execute(array(
-			$roomid,
+			$chatMessage->roomid,
 			$chatMessage->message,
 			$chatMessage->user,
 			$chatMessage->isEvent,
 			$chatMessage->date
 		));
-		
-		// Update timestamp on last sent message
-		$query = 'UPDATE rooms SET lastmessage = ? WHERE id = ?';
-		
-		$req = $this->db->prepare($query);
-		$req->execute(array(
-			time(),
-			$roomid
-		));
-    }
+	}
 	
 	public function addEventMessage($user, $message)
 	{
 		$eventMessage 			= new ChatMessage();
+		$eventMessage->roomid	= $user->roomid;
 		$eventMessage->message	= $message;
 		$eventMessage->user 	= $user->username;
 		$eventMessage->date		= time();
 		$eventMessage->isEvent	= true;
 		
-		$this->addMessage($user->roomid, $eventMessage);
+		$this->addMessage($eventMessage);
 	}
-    
-    function GetNbChatRooms() {
-        try {
-            $query = 'SELECT COUNT(id) FROM rooms';
-            
-            $req = $this->db->prepare($query);
-            
-            $req->execute();
-            
-            $result = $req->fetchAll();
-            
-            if(is_null($result) || count($result) != 1) {
-                return -1;
-            }
-            
-            $resultRow = $result[0];
-            
-            return $resultRow[0];
-        }
-        catch (Exception $e) 
-        {
-            logException($e);
-            die('Error: database error.');
-        }
-    }
-    
-    function GetNbMessages() {
-        try {
-            $query = 'SELECT COUNT(roomid) FROM messages';
-            
-            $req = $this->db->prepare($query);
-            
-            $req->execute();
-            
-            $result = $req->fetchAll();
-            
-            if(is_null($result) || count($result) != 1) {
-                return -1;
-            }
-            
-            $resultRow = $result[0];
-            
-            return $resultRow[0];
-        }
-        catch (Exception $e) 
-        {
-            logException($e);
-            die('Error: database error.');
-        }
-    }
+	
+	function GetNbChatRooms() {
+		try {
+			$query = 'SELECT COUNT(id) FROM rooms';
+			
+			$req = $this->db->prepare($query);
+			
+			$req->execute();
+			
+			$result = $req->fetchAll();
+			
+			if(is_null($result) || count($result) != 1) {
+				return -1;
+			}
+			
+			$resultRow = $result[0];
+			
+			return $resultRow[0];
+		}
+		catch (Exception $e) 
+		{
+			logException($e);
+			die('Error: database error.');
+		}
+	}
+	
+	function GetNbMessages() {
+		try {
+			$query = 'SELECT COUNT(roomid) FROM messages';
+			
+			$req = $this->db->prepare($query);
+			
+			$req->execute();
+			
+			$result = $req->fetchAll();
+			
+			if(is_null($result) || count($result) != 1) {
+				return -1;
+			}
+			
+			$resultRow = $result[0];
+			
+			return $resultRow[0];
+		}
+		catch (Exception $e) 
+		{
+			logException($e);
+			die('Error: database error.');
+		}
+	}
 }

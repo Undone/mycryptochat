@@ -8,15 +8,23 @@ require 'inc/dbmanager.php';
 
 $dbManager 			= new DbManager();
 $roomid 			= filter_input(INPUT_POST, "roomId");
-$dateLastNewMessage = filter_input(INPUT_POST, "dateLastGetMessages");
+$lastId				= filter_input(INPUT_POST, "lastId", FILTER_VALIDATE_INT);
 $chatRoom 			= $dbManager->GetChatroom($roomid);
 $session 			= ChatUser::GetSession($roomid);
 $currentUser		= $dbManager->getUser($session);
 $time 				= time();
 
-// If the room doesn't exist or the chatroom has expired, exit
-if (!$chatRoom || $chatRoom->dateEnd != 0 && $chatRoom->dateEnd <= $time)
+// Room doesn't exist
+if (!$chatRoom)
 {
+	echo "noRoom";
+	exit;
+}
+
+// Room has expired
+if ($chatRoom->dateEnd <= $time)
+{
+	$dbManager->deleteChatroom($roomid);
 	echo "noRoom";
 	exit;
 }
@@ -48,26 +56,13 @@ foreach($chatRoom->users as $key => $user)
 // If the room is only allowed to have 2 users, delete it when a third user joins
 if($chatRoom->noMoreThanOneVisitor && count($chatRoom->users) > 2)
 {
-	$dbManager->DeleteChatroom($roomid);
+	$dbManager->deleteChatroom($roomid);
 	echo "destroyed";
 	exit;
 }
 
-// Check if there are messages that should be sent to the browser
-if($dateLastNewMessage < $chatRoom->dateLastNewMessage)
-{
-	$messages = $dbManager->GetLastMessages($chatRoom->id, NB_MESSAGES_TO_KEEP);
-	
-	header('Content-Type: application/json');
-	echo '{"dateLastGetMessages": ', time(), ', "chatLines": ', json_encode($messages), ', "userCount": ', count($chatRoom->users),'}';
-	exit;
-}
-else
-{
-	// Update the amount of users online to the browser
-    header('Content-Type: application/json');
-	echo '{ "userCount": ', count($chatRoom->users),' }';
-	exit;
-}
+// Get the latest messages, but not messages we have already received
+$messages = $dbManager->getLastMessages($chatRoom->id, NB_MESSAGES_TO_KEEP, $lastId);
 
-echo "noRoom";
+header('Content-Type: application/json');
+echo '{"messages": ', json_encode($messages), ', "userCount": ', count($chatRoom->users),'}';

@@ -5,7 +5,7 @@ require 'inc/functions.php';
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Home - MyCryptoChat by HowTommy.net</title>
+    <title>MyCryptoChat</title>
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
     <link href="styles/myCryptoChat.css" rel="stylesheet" />
@@ -118,11 +118,8 @@ require 'inc/functions.php';
     </header>
     <div id="body">
         <section class="content-wrapper main-content clear-fix">
-
             <h2>MyCryptoChat</h2>
-
             <div class="mb20">Chat using end-to-end encryption</div>
-
             <form method="POST" action="newroom.php">
                 <label for="nbMinutesToLive">Lifetime of the chat room:</label>
                 <select id="nbMinutesToLive" name="nbMinutesToLive">
@@ -131,7 +128,6 @@ require 'inc/functions.php';
                     <?php } ?>
                 </select><br />
                 <br />
-				
 				<input type="checkbox" name="isRemovable" id="isRemovable" value="true" onchange="if(this.checked) { $('#divRemovePassword').show(); } else { $('#divRemovePassword').hide(); }" />
                 <label for="isRemovable" class="labelIndex">Is removable</label>
 				<br />
@@ -140,11 +136,9 @@ require 'inc/functions.php';
 					<input type="password" name="removePassword" value="" />
 				</div>
 				<br />
-				
 				<input type="checkbox" name="selfDestroys" id="selfDestroys" value="true" />
                 <label for="selfDestroys" class="labelIndex">Self-destroys if more than one visitor</label>
 				<br />
-				
 				<br />
                 <input type="submit" value="Create a new chat room" />
             </form>
