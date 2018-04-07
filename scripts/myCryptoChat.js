@@ -115,12 +115,8 @@ function sendMessage()
 				// Clear input box
 				elem.val("");
 
-				// If message was sent, refresh messages, else display error
-				if (data)
-				{
-					getMessages(false);
-				}
-				else
+				// If data was not sent, display error
+				if (!data)
 				{
 					$("#chatroom").append("<i>Failed to send your message</i><br/>");
 				}
