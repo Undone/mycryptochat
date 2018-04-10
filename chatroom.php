@@ -63,7 +63,7 @@
 					<div id="chatusers"></div>
 				</div>
 				<div id="chatbar">
-					<input type="text" id="textMessage" placeholder="Type to chat" onkeydown="if (event.keyCode == 13 && !event.shiftKey) { sendMessage(); }"/>
+					<input type="text" id="textMessage" placeholder="Type to chat" onkeydown="if (event.keyCode == 13) { sendMessage(); }"/>
 				</div>
 			</div>
 			<div>
