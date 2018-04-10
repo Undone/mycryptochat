@@ -101,8 +101,6 @@ h5, h6 {
 }
 
 .main-content {
-    background: url("../images/accent.png") no-repeat;
-    padding-left: 10px;
     padding-top: 30px;
 }
 
@@ -750,31 +748,58 @@ tr.pager td {
 /* custom css */
 
 #chatroom {
-    background: white;
     border: 1px solid gray;
-    height: 300px;
-    width: 90%;
-    margin-top: 20px;
-    margin-bottom: 5px;
+	flex: 90%;
     padding: 10px;
     overflow: auto;
 }
 
+.container {
+	display: flex;
+	flex-flow: row wrap;
+}
+
+.row {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.chat-container {
+	display: flex;
+	flex-direction: row;
+	height: 50vh;
+	flex: 1;
+	background-color: #ededed;
+}
+
+#chatusers {
+	
+	flex: 15%;
+	min-width: 100px;
+	border: 1px solid gray;
+	border-left: 0;
+	overflow-y: scroll;
+}
+
+#chatusers span {
+	display: block;
+	padding: 5px;
+}
+
+#chatbar {
+	display: flex;
+	flex: 100%;
+}
+
+#chatbar input {
+	width: 100%;
+	margin: 0;
+	border: 1px solid gray;
+	border-top: 0;
+}
+
 .mb20 {
     margin-bottom: 20px;
-}
-
-#divUsers {
-    font-size: 0.9em;
-    margin-bottom: 5px;
-    width: 90%;
-    text-align: center;
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
-#textMessage {
-    max-width: 90%;
 }
 
 #divButtonRemoveChatroom {

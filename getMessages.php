@@ -65,4 +65,4 @@ if($chatRoom->noMoreThanOneVisitor && count($chatRoom->users) > 2)
 $messages = $dbManager->getLastMessages($chatRoom->id, NB_MESSAGES_TO_KEEP, $lastId);
 
 header('Content-Type: application/json');
-echo '{"messages": ', json_encode($messages), ', "userCount": ', count($chatRoom->users),'}';
+echo '{"messages": ', json_encode($messages), ', "users": ', json_encode($chatRoom->getUsernames()),'}';

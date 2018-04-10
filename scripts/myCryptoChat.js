@@ -23,9 +23,16 @@ function setLocationHash(value)
 	document.location.hash = "#" + sjcl.codec.base64url.fromBits(value);
 }
 
+function addChatUser(elem, encryptedUsername, key)
+{
+	var username = sjcl.decrypt(key, encryptedUsername);
+	
+	$("#chatusers").append("<span>" + username + "</span>");
+}
+
 function addChatMessage(elem, chatMessage, key)
 {
-	var id			= chatMessage.id;
+	var id			= Number(chatMessage.id);
 	var user 		= chatMessage.user;
 	var message		= chatMessage.message;
 	var date		= chatMessage.date;
@@ -156,8 +163,6 @@ function getMessages(changeTitle)
 		}
 		else if (data && data.messages)
 		{
-			$("#nbUsers").html(data.userCount);
-			
 			if (key == "" || key == "=")
 			{
 				chatRoom.html("<i>The key is missing (the part of the website url after '#').</i>");
@@ -171,6 +176,16 @@ function getMessages(changeTitle)
 			for (i = 0; i < data.messages.length; i++)
 			{
 				addChatMessage(chatRoom, data.messages[i], decryptionKey);
+			}
+			
+			// Clear the users panel
+			$("#chatusers").empty();
+			
+			// Add all current users to the panel
+			// This is not the most optimised way to do this, TODO a better way
+			for(i = 0; i < data.users.length; i++)
+			{
+				addChatUser(chatRoom, data.users[i], decryptionKey);
 			}
 			
 			if (data.messages.length > 0)

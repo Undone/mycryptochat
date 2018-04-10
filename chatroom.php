@@ -57,14 +57,16 @@
 	<?php if ($user) { ?>
 	<div id="body">
 		<section class="content-wrapper main-content clear-fix">
-			<h2>MyCryptoChat</h2>
-			<div class="mb20">Chat using end-to-end encryption</div>
-			<div id="chatroom"></div>
-			<div id="divUsers"><span id="nbUsers">1</span> user(s) online</div>
+			<div class="container">
+				<div class="chat-container">
+					<div id="chatroom"></div>
+					<div id="chatusers"></div>
+				</div>
+				<div id="chatbar">
+					<input type="text" id="textMessage" placeholder="Type to chat" onkeydown="if (event.keyCode == 13 && !event.shiftKey) { sendMessage(); }"/>
+				</div>
+			</div>
 			<div>
-				<p>Username: <span id="usernameDisplay"><?php echo $user->username; ?></span></p>
-				<textarea id="textMessage" onkeydown="if (event.keyCode == 13 && !event.shiftKey) { sendMessage(); }"></textarea><br />
-				<input type="button" value="Send" id="sendMessage" onclick="sendMessage();" /><br /><br />
 				<?php 
 					if($chatRoom->isRemovable) {
 				?>
