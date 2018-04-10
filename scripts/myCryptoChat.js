@@ -23,7 +23,7 @@ function setLocationHash(value)
 	document.location.hash = "#" + sjcl.codec.base64url.fromBits(value);
 }
 
-function addChatUser(elem, encryptedUsername, key)
+function addChatUser(encryptedUsername, key)
 {
 	var username = sjcl.decrypt(key, encryptedUsername);
 	
@@ -185,7 +185,7 @@ function getMessages(changeTitle)
 			// This is not the most optimised way to do this, TODO a better way
 			for(i = 0; i < data.users.length; i++)
 			{
-				addChatUser(chatRoom, data.users[i], decryptionKey);
+				addChatUser(data.users[i], decryptionKey);
 			}
 			
 			if (data.messages.length > 0)
