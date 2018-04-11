@@ -17,22 +17,31 @@ $time 				= time();
 // Room doesn't exist
 if (!$chatRoom)
 {
-	echo "noRoom";
+	header("HTTP/1.1 404 Not Found");
 	exit;
 }
 
 // Room has expired
+// Returning 404 might not be ideal, but it works for the time being
 if ($chatRoom->dateEnd <= $time)
 {
 	$dbManager->deleteChatroom($roomid);
-	echo "noRoom";
+	header("HTTP/1.1 404 Not Found");
 	exit;
 }
 
 // Exit if user couldn't be retrieved, TODO: better error handling
 if (!$currentUser)
 {
-	echo "invalid_user";
+	header("HTTP/1.1 400 Bad Request");
+	exit;
+}
+
+// If the room is only allowed to have 2 users, delete it when a third user joins
+if($chatRoom->noMoreThanOneVisitor && count($chatRoom->users) > 2)
+{
+	$dbManager->deleteChatroom($roomid);
+	header("HTTP/1.1 403 Forbidden");
 	exit;
 }
 
@@ -53,16 +62,8 @@ foreach($chatRoom->users as $key => $user)
 	}
 }
 
-// If the room is only allowed to have 2 users, delete it when a third user joins
-if($chatRoom->noMoreThanOneVisitor && count($chatRoom->users) > 2)
-{
-	$dbManager->deleteChatroom($roomid);
-	echo "destroyed";
-	exit;
-}
-
 // Get the latest messages, but not messages we have already received
 $messages = $dbManager->getLastMessages($chatRoom->id, NB_MESSAGES_TO_KEEP, $lastId);
 
 header('Content-Type: application/json');
-echo '{"messages": ', json_encode($messages), ', "userCount": ', count($chatRoom->users),'}';
+echo '{"messages": ', json_encode($messages), ', "users": ', json_encode($chatRoom->getUsernames()).'}';
