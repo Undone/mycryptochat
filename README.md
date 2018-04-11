@@ -26,6 +26,5 @@ You can use the `structure.sql` to import the table structures to your database.
 
 
 # Known issues
-## version 1.2.0+ ##
-Microsoft Edge doesn't work as intended. It will not pass the encryption key after entering the username, this becomes an issue when you're trying to join a chat.
-You can work around this by entering the username and pasting the link again in a new tab. It's stupid but it works.
+## version 1.2.4+ ##
+Internet Explorer doesn't display the chat correctly due to miserable support of flexbox. Use a better browser.
