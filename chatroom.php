@@ -42,8 +42,6 @@
 				<p class="site-title"><a href="index.php">MyCryptoChat</a></p>
 			</div>
 			<div class="float-right">
-				<section id="login">
-				</section>
 				<nav>
 					<ul id="menu">
 						<li><a href="index.php">Home</a></li>
@@ -96,11 +94,7 @@
 	</div>
 	<?php } ?>
 	<footer>
-		<div class="content-wrapper">
-			<div class="float-left">
-				<p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
-			</div>
-		</div>
+		<p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
 	</footer>
 	<script type="text/javascript" src="scripts/sjcl.js"></script>
 	<script type="text/javascript" src="scripts/myCryptoChat.js"></script>

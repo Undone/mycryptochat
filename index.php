@@ -105,8 +105,8 @@ require 'inc/functions.php';
     </header>
     <div id="body">
         <section class="content-wrapper main-content clear-fix">
-            <h2>MyCryptoChat</h2>
-            <div class="mb20">Chat using end-to-end encryption</div>
+			<h2>Create a chatroom</h2>
+            <p>Chat using end-to-end encryption</p>
             <form method="POST" action="newroom.php">
                 <label for="nbMinutesToLive">Lifetime of the chat room:</label>
                 <select id="nbMinutesToLive" name="nbMinutesToLive">
@@ -132,11 +132,7 @@ require 'inc/functions.php';
         </section>
     </div>
     <footer>
-        <div class="content-wrapper">
-            <div class="float-left">
-                <p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
-            </div>
-        </div>
+		<p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
     </footer>
     <?php } ?>
 </body>
