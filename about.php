@@ -44,11 +44,7 @@
 			</section>
 		</div>
 		<footer>
-			<div class="content-wrapper">
-				<div class="float-left">
-					<p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
-				</div>
-			</div>
+			<p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
 		</footer>
 	</body>
 </html>
