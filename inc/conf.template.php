@@ -1,8 +1,5 @@
 <?php
 
-// modify it: replace 'f-rjng24!1r5TRHHgnjrt' by some random characters
-const SEED = 'f-rjng24!1r5TRHHgnjrt';
-
 // number of messages to keep
 const NB_MESSAGES_TO_KEEP = 100;
 

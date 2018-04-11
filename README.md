@@ -16,8 +16,6 @@ Give write permission to `db/chatrooms.sqlite` and `db/logs.txt`. Database error
 
 Copy the configuration template from `inc/conf.template.php` to `inc/conf.php`
 
-Edit the configuration file `inc/conf.php`. You will have to change the SEED variable.
-
 The database type will be SQLite by default, the SQLite database is stored in `db/chatrooms.sqlite`.
 
 ## MySQL
