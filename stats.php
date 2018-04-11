@@ -15,7 +15,7 @@ $nbMessages = $dbManager->GetNbMessages();
 <head>
     <meta charset="utf-8" />
     <title>Stats - MyCryptoChat</title>
-    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
     <link href="styles/myCryptoChat.css" rel="stylesheet" />
 </head>
@@ -26,8 +26,6 @@ $nbMessages = $dbManager->GetNbMessages();
                 <p class="site-title"><a href="index.php">MyCryptoChat</a></p>
             </div>
             <div class="float-right">
-                <section id="login">
-                </section>
                 <nav>
                     <ul id="menu">
                         <li><a href="index.php">Home</a></li>
@@ -40,23 +38,15 @@ $nbMessages = $dbManager->GetNbMessages();
     </header>
     <div id="body">
         <section class="content-wrapper main-content clear-fix">
-
             <h2>Stats about MyCryptoChat</h2>
-
             <p>
                 Number of chat rooms: <?php echo $nbChatrooms; ?><br />
                 Number of messages: <?php echo $nbMessages; ?>
             </p>
-
         </section>
     </div>
     <footer>
-        <div class="content-wrapper">
-            <div class="float-left">
-                <p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
-            </div>
-        </div>
+		<p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
     </footer>
-    <script src="scripts/jquery.js"></script>
 </body>
 </html>

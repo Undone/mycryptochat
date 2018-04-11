@@ -14,7 +14,23 @@ function randomString($size)
     return $random;
 }
 
+// Generate a random sha256 hash, this will be used to create a temporary session token for a user
 function generateRandomHash()
 {
-	return hash("sha256", time().SEED.rand(1,100));
+	$input = "";
+	
+	if (function_exists("random_bytes"))
+	{
+		$input = bin2hex(random_bytes(20));
+	}
+	elseif (function_exists("openssl_random_pseudo_bytes"))
+	{
+		$input = bin2hex(openssl_random_pseudo_bytes(20));
+	}
+	else
+	{
+		$input = time().rand(1, 1000);
+	}
+	
+	return hash("sha256", $input);
 }

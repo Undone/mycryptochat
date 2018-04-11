@@ -6,7 +6,7 @@ require 'inc/functions.php';
 <head>
     <meta charset="utf-8" />
     <title>MyCryptoChat</title>
-    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
     <link href="styles/myCryptoChat.css" rel="stylesheet" />
 </head>
@@ -27,7 +27,7 @@ require 'inc/functions.php';
         </p>
     <?php
     }
-    if(!is_writable(DB_FILE_NAME)) {
+    if(DB_TYPE == DATABASE_SQLITE && !is_writable(DB_FILE_NAME)) {
         $showContent = false;
     ?>
     <h2>Error: database access</h2>
@@ -77,17 +77,6 @@ require 'inc/functions.php';
     </p>
     <?php
     }
-    if($configIncluded === true && SEED == 'f-rjng24!1r5TRHHgnjrt') {
-        $showContent = false;
-    ?>
-    <h2>Error: the seed was not modified</h2>
-    <p>
-        The seed that is used to do a better hashing for users is still 'f-rjng24!1r5TRHHgnjrt'<br />
-        Please modify its value in 'inc/conf.php'.<br />
-        You could may be use '<?php echo randomString(20); ?>', or another.
-    </p>
-    <?php
-    }
     if($showContent) {
     ?>
     <noscript>
@@ -104,8 +93,6 @@ require 'inc/functions.php';
                 <p class="site-title"><a href="index.php">MyCryptoChat</a></p>
             </div>
             <div class="float-right">
-                <section id="login">
-                </section>
                 <nav>
                     <ul id="menu">
                         <li><a href="index.php">Home</a></li>
@@ -118,8 +105,8 @@ require 'inc/functions.php';
     </header>
     <div id="body">
         <section class="content-wrapper main-content clear-fix">
-            <h2>MyCryptoChat</h2>
-            <div class="mb20">Chat using end-to-end encryption</div>
+			<h2>Create a chatroom</h2>
+            <p>Chat using end-to-end encryption</p>
             <form method="POST" action="newroom.php">
                 <label for="nbMinutesToLive">Lifetime of the chat room:</label>
                 <select id="nbMinutesToLive" name="nbMinutesToLive">
@@ -145,13 +132,8 @@ require 'inc/functions.php';
         </section>
     </div>
     <footer>
-        <div class="content-wrapper">
-            <div class="float-left">
-                <p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
-            </div>
-        </div>
+		<p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
     </footer>
-    <script src="scripts/jquery.js"></script>
     <?php } ?>
 </body>
 </html>

@@ -15,8 +15,6 @@ $message 	= filter_input(INPUT_POST, "message");
 $session	= ChatUser::GetSession($roomid);
 $user		= $dbManager->getUser($session);
 
-header('Content-Type: application/json');
-
 if($user && $chatRoom)
 {
 	$chatMessage 			= new ChatMessage();
@@ -26,10 +24,10 @@ if($user && $chatRoom)
 	$chatMessage->isEvent	= false;
 	$chatMessage->date 		= $time;
 	
-    $dbManager->addMessage($chatMessage);
-    
-    echo json_encode(true);
+	$dbManager->addMessage($chatMessage);
+	
+	header("HTTP/1.1 201 Created");
 	exit;
 }
 
-echo json_encode(false);
+header("HTTP/1.1 400 Bad Request");
