@@ -15,7 +15,7 @@ $nbMessages = $dbManager->GetNbMessages();
 <head>
     <meta charset="utf-8" />
     <title>Stats - MyCryptoChat</title>
-    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
     <link href="styles/myCryptoChat.css" rel="stylesheet" />
 </head>
@@ -26,8 +26,6 @@ $nbMessages = $dbManager->GetNbMessages();
                 <p class="site-title"><a href="index.php">MyCryptoChat</a></p>
             </div>
             <div class="float-right">
-                <section id="login">
-                </section>
                 <nav>
                     <ul id="menu">
                         <li><a href="index.php">Home</a></li>
@@ -40,14 +38,11 @@ $nbMessages = $dbManager->GetNbMessages();
     </header>
     <div id="body">
         <section class="content-wrapper main-content clear-fix">
-
             <h2>Stats about MyCryptoChat</h2>
-
             <p>
                 Number of chat rooms: <?php echo $nbChatrooms; ?><br />
                 Number of messages: <?php echo $nbMessages; ?>
             </p>
-
         </section>
     </div>
     <footer>
@@ -57,6 +52,5 @@ $nbMessages = $dbManager->GetNbMessages();
             </div>
         </div>
     </footer>
-    <script src="scripts/jquery.js"></script>
 </body>
 </html>
