@@ -33,6 +33,18 @@
 				}
 			}
 		}
+		
+		public function getUsernames()
+		{
+			$usernames = array();
+			
+			foreach($this->users as $user)
+			{
+				array_push($usernames, $user->username);
+			}
+			
+			return $usernames;
+		}
 	}
 	
 	class ChatMessage
