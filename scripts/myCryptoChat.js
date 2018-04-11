@@ -45,7 +45,7 @@ function addChatUser(encryptedUsername, key)
 
 function addChatMessage(elem, chatMessage, key)
 {
-	var id			= chatMessage.id;
+	var id			= Number(chatMessage.id);
 	var user 		= chatMessage.user;
 	var message		= chatMessage.message;
 	var date		= chatMessage.date;

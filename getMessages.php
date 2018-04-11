@@ -66,4 +66,4 @@ foreach($chatRoom->users as $key => $user)
 $messages = $dbManager->getLastMessages($chatRoom->id, NB_MESSAGES_TO_KEEP, $lastId);
 
 header('Content-Type: application/json');
-echo '{"messages": ', json_encode($messages), ', "users": ', json_encode($chatRoom->getUsernames()).'}';
+echo '{"messages": ', json_encode($messages), ', "users": ', json_encode($chatRoom->getUsernames()),'}';
