@@ -11,6 +11,8 @@
 	$roomid		= filter_input(INPUT_GET, "id");
 	$username 	= filter_input(INPUT_POST, "username");
 	$chatRoom 	= $dbManager->GetChatroom($roomid);
+	$session	= ChatUser::GetSession($roomid);
+	$user		= $dbManager->getUser($session);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -85,6 +87,17 @@
 		var isRefreshTitle = false;
 		var refreshTitleInterval;
 		
+		function displayChat()
+		{
+			document.getElementById("body").style.display 			= "block";
+			document.getElementById("body_username").style.display 	= "none";
+
+			getMessages(false);
+
+			// try to get new messages every 1.5 seconds
+			checkIntervalTimer = setInterval("getMessages(true)", 1500);
+		}
+		
 		function setUsername()
 		{
 			var key = pageKey();
@@ -113,13 +126,7 @@
 				{
 					if (xhr.status === 201)
 					{
-						document.getElementById("body").style.display 			= "block";
-						document.getElementById("body_username").style.display 	= "none";
-						
-						getMessages(false);
-
-						// try to get new messages every 1.5 seconds
-						checkIntervalTimer = setInterval("getMessages(true)", 1500);
+						displayChat();
 					}
 				}
 			}
@@ -156,6 +163,10 @@
 				// Append it to the URL
 				setLocationHash(newkey);
 			}
+			
+			<?php if ($user) { ?>
+				displayChat();
+			<?php } ?>
 		}
 		
 		window.addEventListener("load", onLoad);
