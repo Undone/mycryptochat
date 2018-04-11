@@ -11,20 +11,6 @@
 	$roomid		= filter_input(INPUT_GET, "id");
 	$username 	= filter_input(INPUT_POST, "username");
 	$chatRoom 	= $dbManager->GetChatroom($roomid);
-	$session	= ChatUser::GetSession($roomid);
-	$user		= $dbManager->getUser($session);
-	
-	if ($chatRoom && !$user && $username)
-	{
-		// Create new session
-		$user = ChatUser::Create($roomid);
-		$user->setUsername($username);
-		
-		$dbManager->saveUser($user);
-		$chatRoom->addUser($user);
-		
-		$dbManager->addEventMessage($user, "joined the room");
-	}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,8 +38,7 @@
 			</div>
 		</div>
 	</header>
-	<?php if ($user) { ?>
-	<div id="body">
+	<div id="body" style="display: none">
 		<section class="content-wrapper main-content clear-fix">
 			<div class="container">
 				<div class="chat-container">
@@ -78,21 +63,16 @@
 			</div>
 		</section>
 	</div>
-	<script type="text/javascript">
-		var sessionToken = "<?php echo $user->id; ?>";
-	</script>
-	<?php } else { ?>
 	<div id="body_username">
 		<section class="content-wrapper main-content clear-fix">
 			<h2>Join chatroom</h2>
 			<div class="mb20">You need to choose a username before joining the chatroom</div>
-			<form method="POST" onsubmit="encryptUsername()">
+			<form method="POST" onsubmit="return setUsername()">
 				<label>Username:  <input type="text" id="username" required/> <input type="submit" value="Enter"/></label>
 				<input type="hidden" id="username_encrypted" name="username"/>
 			</form>
 		</section>
 	</div>
-	<?php } ?>
 	<footer>
 		<p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
 	</footer>
@@ -100,24 +80,52 @@
 	<script type="text/javascript" src="scripts/myCryptoChat.js"></script>
 	<script type="text/javascript">
 		var roomId = '<?php echo htmlspecialchars($roomid, ENT_QUOTES, 'UTF-8'); ?>';
+		var sessionCreated = false;
 		var checkIntervalTimer;
 		var isRefreshTitle = false;
 		var refreshTitleInterval;
 		
-		// Before submitting the form, encrypt the username
-		// The plain-text value is never sent to the server
-		function encryptUsername()
+		function setUsername()
 		{
-			var elem	= document.getElementById("username");
-			var elem2	= document.getElementById("username_encrypted");
-			var key		= pageKey();
+			var key = pageKey();
+			var username = document.getElementById("username").value;
 			
 			if (key != "" && key != "=")
 			{
 				key = sjcl.codec.base64url.toBits(key);
-
-				elem2.value = sjcl.encrypt(key, elem.value, cryptoOptions);
+				username = sjcl.encrypt(key, username, cryptoOptions);
 			}
+			else
+			{
+				return false;
+			}
+			
+			var formData = new FormData();
+			formData.append("roomId", roomId);
+			formData.append("username", username);
+			
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "register.php");
+			
+			xhr.onreadystatechange = function()
+			{
+				if (xhr.readyState == XMLHttpRequest.DONE)
+				{
+					if (xhr.status === 201)
+					{
+						document.getElementById("body").style.display 			= "block";
+						document.getElementById("body_username").style.display 	= "none";
+						
+						getMessages(false);
+
+						// try to get new messages every 1.5 seconds
+						checkIntervalTimer = setInterval("getMessages(true)", 1500);
+					}
+				}
+			}
+			
+			xhr.send(formData);
+			return false;
 		}
 
 		function stopTimerCheck()
@@ -148,11 +156,6 @@
 				// Append it to the URL
 				setLocationHash(newkey);
 			}
-			
-			getMessages(false);
-
-			// try to get new messages every 1.5 seconds
-			checkIntervalTimer = setInterval("getMessages(true)", 1500);
 		}
 		
 		window.addEventListener("load", onLoad);
