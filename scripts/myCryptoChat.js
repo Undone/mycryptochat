@@ -25,7 +25,15 @@ function setLocationHash(value)
 
 function addChatUser(encryptedUsername, key)
 {
-	var username = sjcl.decrypt(key, encryptedUsername);
+	var username;
+	
+	try {
+		username = sjcl.decrypt(key, encryptedUsername);
+	}
+	catch(e)
+	{
+		username = "*Encrypted*";
+	}
 	
 	// Create a span element, set the contents to a html encoded username
 	var node = document.createElement("span");
@@ -117,7 +125,6 @@ function sendMessage()
 			
 			var formData = new FormData();
 			formData.append("roomId", roomId);
-			formData.append("user", sessionToken);
 			formData.append("message", sjcl.encrypt(encryptionKey, message, cryptoOptions));
 			
 			var xhr = new XMLHttpRequest();
