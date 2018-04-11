@@ -70,8 +70,7 @@
 			<h2>Join chatroom</h2>
 			<div class="mb20">You need to choose a username before joining the chatroom</div>
 			<form method="POST" onsubmit="return setUsername()">
-				<label>Username:  <input type="text" id="username" required/> <input type="submit" value="Enter"/></label>
-				<input type="hidden" id="username_encrypted" name="username"/>
+				<label>Username: <input type="text" id="username" required/> <input type="submit" value="Enter"/></label>
 			</form>
 		</section>
 	</div>
@@ -82,7 +81,6 @@
 	<script type="text/javascript" src="scripts/myCryptoChat.js"></script>
 	<script type="text/javascript">
 		var roomId = '<?php echo htmlspecialchars($roomid, ENT_QUOTES, 'UTF-8'); ?>';
-		var sessionCreated = false;
 		var checkIntervalTimer;
 		var isRefreshTitle = false;
 		var refreshTitleInterval;
