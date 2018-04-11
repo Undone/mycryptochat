@@ -14,7 +14,7 @@
 	$session	= ChatUser::GetSession($roomid);
 	$user		= $dbManager->getUser($session);
 	
-	if (!$user && $username)
+	if ($chatRoom && !$user && $username)
 	{
 		// Create new session
 		$user = ChatUser::Create($roomid);
@@ -31,7 +31,7 @@
 <head>
 	<meta charset="utf-8" />
 	<title>MyCryptoChat</title>
-	<link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+	<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
 	<meta name="viewport" content="width=device-width" />
 	<link href="styles/myCryptoChat.css" rel="stylesheet" />
 </head>
@@ -57,20 +57,23 @@
 	<?php if ($user) { ?>
 	<div id="body">
 		<section class="content-wrapper main-content clear-fix">
-			<h2>MyCryptoChat</h2>
-			<div class="mb20">Chat using end-to-end encryption</div>
-			<div id="chatroom"></div>
-			<div id="divUsers"><span id="nbUsers">1</span> user(s) online</div>
+			<div class="container">
+				<div class="chat-container">
+					<div id="chatroom"></div>
+					<div id="chatusers"></div>
+				</div>
+				<div id="chatbar">
+					<input type="text" id="textMessage" placeholder="Type to chat" onkeydown="if (event.keyCode == 13) { sendMessage(); }"/>
+				</div>
+			</div>
 			<div>
-				<p>Username: <span id="usernameDisplay"><?php echo $user->username; ?></span></p>
-				<textarea id="textMessage" onkeydown="if (event.keyCode == 13 && !event.shiftKey) { sendMessage(); }"></textarea><br />
-				<input type="button" value="Send" id="sendMessage" onclick="sendMessage();" /><br /><br />
 				<?php 
-					if($chatRoom->isRemovable) {
+					if($chatRoom && $chatRoom->isRemovable) {
 				?>
-					<br /><div id="divButtonRemoveChatroom">
-							<input type="button" value="Remove the chat room" onclick="removeChatroom(<?php if($chatRoom->removePassword != '') { echo 'true'; } else { echo 'false'; } ?>);" />
-						</div>
+					<br/>
+					<div id="divButtonRemoveChatroom">
+						<input type="button" value="Remove the chat room" onclick="removeChatroom(<?php if($chatRoom->removePassword != '') { echo 'true'; } else { echo 'false'; } ?>);" />
+					</div>
 				<?php
 					}
 				?>
@@ -99,12 +102,13 @@
 			</div>
 		</div>
 	</footer>
-	<script type="text/javascript" src="scripts/jquery.js"></script>
 	<script type="text/javascript" src="scripts/sjcl.js"></script>
-	<script type="text/javascript" src="scripts/vizhash.js"></script>
 	<script type="text/javascript" src="scripts/myCryptoChat.js"></script>
 	<script type="text/javascript">
 		var roomId = '<?php echo htmlspecialchars($roomid, ENT_QUOTES, 'UTF-8'); ?>';
+		var checkIntervalTimer;
+		var isRefreshTitle = false;
+		var refreshTitleInterval;
 		
 		// Before submitting the form, encrypt the username
 		// The plain-text value is never sent to the server
@@ -121,8 +125,23 @@
 				elem2.value = sjcl.encrypt(key, elem.value, cryptoOptions);
 			}
 		}
+
+		function stopTimerCheck()
+		{
+			clearInterval(checkIntervalTimer);
+		}
 		
-		$(function()
+		function stopRefreshTitle()
+		{
+			if (isRefreshTitle)
+			{
+				clearInterval(refreshTitleInterval);
+				document.title = "MyCryptoChat";
+				isRefreshTitle = false;
+			}
+		}
+
+		function onLoad()
 		{
 			var key = pageKey();
 			
@@ -135,20 +154,15 @@
 				// Append it to the URL
 				setLocationHash(newkey);
 			}
-			else
-			{
-				var elem = document.getElementById("usernameDisplay");
-				
-				if (elem !== null)
-				{
-					// Convert key from base64 to bit array
-					key = sjcl.codec.base64url.toBits(key);
-					
-					// Decrypt the displayed username
-					elem.innerHTML = sjcl.decrypt(key, elem.innerHTML);
-				}
-			}
-		});
+			
+			getMessages(false);
+
+			// try to get new messages every 1.5 seconds
+			checkIntervalTimer = setInterval("getMessages(true)", 1500);
+		}
+		
+		window.addEventListener("load", onLoad);
+		window.addEventListener("mousemove", stopRefreshTitle);
 	</script>
 </body>
 </html>

@@ -23,6 +23,18 @@ function setLocationHash(value)
 	document.location.hash = "#" + sjcl.codec.base64url.fromBits(value);
 }
 
+function addChatUser(encryptedUsername, key)
+{
+	var username = sjcl.decrypt(key, encryptedUsername);
+	
+	// Create a span element, set the contents to a html encoded username
+	var node = document.createElement("span");
+	node.innerHTML = htmlEncode(username);
+	
+	// Add span to the users bar
+	document.getElementById("chatusers").appendChild(node);
+}
+
 function addChatMessage(elem, chatMessage, key)
 {
 	var id			= chatMessage.id;
@@ -66,25 +78,21 @@ function addChatMessage(elem, chatMessage, key)
 		message		= "<i>*Encrypted*</i>";
 	}
 	
-	elem.append("<span class='chathour'>(" + getDateFromTimestamp(date) + ")</span> ");
-	
-	if (!isEvent && vizhash.supportCanvas())
-	{
-		var vhash = vizhash.canvasHash(user, 15, 10);
-		elem.append(vhash.canvas);
-		elem.append(" ");
-	}
+	elem.insertAdjacentHTML("beforeend", "<span class='chathour'>(" + getDateFromTimestamp(date) + ")</span> ");
 	
 	if (!isEvent)
 	{
-		elem.append("<a onclick='addText(\" @" + user + ": \"); return false;' class='userNameLink' href='#'><b>" + user + "</b></a> : ");
+		elem.insertAdjacentHTML("beforeend", "<b>" + user + "</b></a> : ");
 	}
 	else
 	{
-		elem.append("<b>" + user + "</b> ");
+		elem.insertAdjacentHTML("beforeend", "<b>" + user + "</b> ");
 	}
 	
-	elem.append(replaceUrlTextWithUrl(message).replace(/(?:\r\n|\r|\n)/g, '<br />') + "<br />");
+	message = replaceUrlTextWithUrl(message);
+	message = message.replace(/(?:\r\n|\r|\n)/g, '<br/>');
+	
+	elem.insertAdjacentHTML("beforeend", message + "<br/>");
 }
 
 function sendMessage()
@@ -98,138 +106,161 @@ function sendMessage()
 	}
 	else
 	{
-		var elem = $("#textMessage");
-		var message = $.trim(elem.val());
+		// Get the user input box
+		var elem = document.getElementById("textMessage");
+		var message = elem.value.trim();
 		
 		if (message != "")
 		{
 			// Convert the key back to bits from base64
 			var encryptionKey = sjcl.codec.base64url.toBits(key);
 			
-			$.post("sendMessage.php", {
-				roomId: roomId,
-				user: sessionToken,
-				message: sjcl.encrypt(encryptionKey, message, cryptoOptions)
-			}, function(data)
+			var formData = new FormData();
+			formData.append("roomId", roomId);
+			formData.append("user", sessionToken);
+			formData.append("message", sjcl.encrypt(encryptionKey, message, cryptoOptions));
+			
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "sendMessage.php");
+			
+			xhr.onreadystatechange = function()
 			{
-				// Clear input box
-				elem.val("");
-
-				// If message was sent, refresh messages, else display error
-				if (data)
+				if (xhr.readyState == XMLHttpRequest.DONE)
 				{
-					getMessages(false);
+					// If the server returns HTTP status code 201 Created, the message has been sent
+					if (xhr.status === 201)
+					{
+						// Clear the user input box
+						elem.value = "";
+					}
+					else
+					{
+						document.getElementById("chatroom").insertAdjacentHTML("beforeend", "<i>Failed to send your message</i><br/>");
+					}
 				}
-				else
-				{
-					$("#chatroom").append("<i>Failed to send your message</i><br/>");
-				}
-			});
+			}
+			
+			xhr.send(formData);
 		}
 	}
 }
-
-var isRefreshTitle = false;
-var refreshTitleInterval;
 
 function getMessages(changeTitle)
 {
 	// Retrieve the base64 key from the URL
 	var key = pageKey();
 	
-	$.post("getMessages.php", { roomId: roomId, lastId: lastMessageId }, function (data)
+	var formData = new FormData();
+	formData.append("roomId", roomId);
+	formData.append("lastId", lastMessageId);
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "getMessages.php");
+	xhr.responseType = "json";
+	
+	xhr.onreadystatechange = function()
 	{
-		var chatRoom = $("#chatroom");
-		
-		if (data == "noRoom")
+		if (xhr.readyState == XMLHttpRequest.DONE)
 		{
-			// closed conversation
-			chatRoom.html("<i>This conversation is over... You should start a new one to keep talking!</i>");
-			stopTimerCheck();
-		}
-		else if (data == "destroyed")
-		{
-			// closed conversation
-			chatRoom.html("<i>This conversation self-destroyed. It was only created for one visitor.</i>");
-			stopTimerCheck();
-		}
-		else if (data == "invalid_user")
-		{
-			// Couldn't retrieve session from database
-			chatRoom.html("<i>Your session has expired.</i>");
-		}
-		else if (data && data.messages)
-		{
-			$("#nbUsers").html(data.userCount);
+			var chatRoom = document.getElementById("chatroom");
 			
-			if (key == "" || key == "=")
+			if (xhr.status === 200)
 			{
-				chatRoom.html("<i>The key is missing (the part of the website url after '#').</i>");
-				stopTimerCheck();
-				return;
-			}
-
-			// We need to convert the key from base64 back to bits
-			var decryptionKey = sjcl.codec.base64url.toBits(key);
-
-			for (i = 0; i < data.messages.length; i++)
-			{
-				addChatMessage(chatRoom, data.messages[i], decryptionKey);
-			}
-			
-			if (data.messages.length > 0)
-			{
-				// Set the chat scrollbar to bottom
-				chatRoom.scrollTop(chatRoom[0].scrollHeight);
+				var data = xhr.response;
 				
-				if (changeTitle && !isRefreshTitle)
+				if (data && data.messages)
 				{
-					refreshTitleInterval = setInterval(function()
+					if (key == "" || key == "=")
 					{
-						if (document.title == "MyCryptoChat")
-						{
-							document.title = "New messages!";
-						}
-						else
-						{
-							document.title = "MyCryptoChat";
-						}
-							
-					}, 3000);
+						chatRoom.innerHTML = "<i>The key is missing (the part of the website url after '#').</i>";
+						stopTimerCheck();
+						return;
+					}
+
+					// We need to convert the key from base64 back to bits
+					var decryptionKey = sjcl.codec.base64url.toBits(key);
+
+					for (i = 0; i < data.messages.length; i++)
+					{
+						addChatMessage(chatRoom, data.messages[i], decryptionKey);
+					}
 					
-					isRefreshTitle = true;
+					// Clear the users panel
+					document.getElementById("chatusers").innerHTML = "";
+					
+					// Add all current users to the panel
+					// This is not the most optimised way to do this, TODO a better way
+					for(i = 0; i < data.users.length; i++)
+					{
+						addChatUser(data.users[i], decryptionKey);
+					}
+					
+					if (data.messages.length > 0)
+					{
+						// Set the chat scrollbar to bottom
+						chatRoom.scrollTop = chatRoom.scrollHeight;
+						
+						if (changeTitle && !isRefreshTitle)
+						{
+							refreshTitleInterval = setInterval(function()
+							{
+								if (document.title == "MyCryptoChat")
+								{
+									document.title = "New messages!";
+								}
+								else
+								{
+									document.title = "MyCryptoChat";
+								}
+									
+							}, 3000);
+							
+							isRefreshTitle = true;
+						}
+					}
 				}
 			}
+			else if (xhr.status === 400)
+			{
+				if (chatRoom !== null)
+				{
+					chatRoom.innerHTML = "<i>Your session has expired.</i>";
+					stopTimerCheck();
+				}
+			}
+			else if (xhr.status === 403)
+			{
+				chatRoom.innerHTML = "<i>This conversation self-destroyed. It was only created for one visitor.</i>";
+				stopTimerCheck();
+			}
+			else if (xhr.status === 404)
+			{
+				chatRoom.innerHTML = "<i>This conversation is over... You should start a new one to keep talking!</i>";
+				stopTimerCheck();
+			}
 		}
-	});
+	}
+	
+	xhr.send(formData);
 }
 
-function replaceUrlTextWithUrl(content) {
+function replaceUrlTextWithUrl(content)
+{
 	var re = /((http|https|ftp):\/\/[\w?=&.\/-;#@~%+-]+(?![\w\s?&.\/;#~%"=-]*>))/ig;
-	content = content.replace(re, '<a href="$1" rel="nofollow">$1</a>');
+	content = content.replace(re, '<a href="$1" rel="nofollow" target="_blank">$1</a>');
 	re = /((magnet):[\w?=&.\/-;#@~%+-]+)/ig;
 	content = content.replace(re, '<a href="$1">$1</a>');
 	return content;
 }
 
-function stopRefreshTitle()
+function htmlEncode(str)
 {
-	if (isRefreshTitle)
-	{
-		clearInterval(refreshTitleInterval);
-		document.title = "MyCryptoChat";
-		isRefreshTitle = false;
-	}
-}
-
-function htmlEncode(value) {
-	return $('<div/>').text(value).html();
-}
-
-var checkIntervalTimer;
-
-function stopTimerCheck() {
-	clearInterval(checkIntervalTimer);
+    return str
+		.replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 function getDateFromTimestamp(date) {
@@ -242,31 +273,45 @@ function getDateFromTimestamp(date) {
 	return hours + ':' + minutes;
 }
 
-function removeChatroom(withPassword) {
-	if (confirm('Are you sure?')) {
+function removeChatroom(withPassword)
+{
+	if (confirm('Are you sure?'))
+	{
 		var removePassword = '';
+		
 		if (withPassword) {
 			var removePassword = prompt("Please enter the password to remove the chat room", "");
 		}
-		$.post("removeChatroom.php", { roomId: roomId, removePassword: removePassword }, function (data) {
-			if (data == "error") {
-				alert('An error occured');
-			} else if (data == "wrongPassword") {
-				alert('Wrong password');
-			} else if (data == "removed") {
-				alert('The chat room has been removed.');
-				window.location = 'index.php';
+		
+		var formData = new FormData();
+		formData.append("roomId", roomId);
+		formData.append("removePassword", removePassword);
+		
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", "removeChatroom.php");
+		
+		xhr.onreadystatechange = function()
+		{
+			if (xhr.readyState == XMLHttpRequest.DONE)
+			{
+				if (xhr.status === 200)
+				{
+					alert('The chat room has been removed.');
+					window.location = 'index.php';
+				}
+				else if (xhr.status === 403)
+				{
+					alert('Wrong password');
+				}
+				else
+				{
+					alert('An error occured');
+				}
 			}
-		});
+		}
+		
+		xhr.send(formData);
 	}
-}
-
-function addText(text) {
-	var editor = $('#textMessage');
-	var value = editor.val();
-	editor.val("");
-	editor.focus();
-	editor.val(value + text);
 }
 
 /**
@@ -294,12 +339,3 @@ function pageKey()
 
 	return key;
 }
-
-$(function () {
-	getMessages(false);
-
-	// try to get new messages every 1.5 seconds
-	checkIntervalTimer = setInterval("getMessages(true)", 1500);
-
-	$('body').on('mousemove', stopRefreshTitle);
-});
