@@ -27,7 +27,7 @@
 		{
 			foreach($this->users as $key => $value)
 			{
-				if ($user->session == $value->session)
+				if ($user->id == $value->id)
 				{
 					unset($this->users[$key]);
 				}
