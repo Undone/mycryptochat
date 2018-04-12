@@ -86,21 +86,24 @@ function addChatMessage(elem, chatMessage, key)
 		message		= "<i>*Encrypted*</i>";
 	}
 	
-	elem.insertAdjacentHTML("beforeend", "<span class='chathour'>(" + getDateFromTimestamp(date) + ")</span> ");
+	var html = "<span class='" + (isEvent ? "chat-message-event" : "chat-message") + "'>";
+	html += "[" + getDateFromTimestamp(date) + "] ";
 	
 	if (!isEvent)
 	{
-		elem.insertAdjacentHTML("beforeend", "<b>" + user + "</b></a> : ");
+		html += "<b>" + user + "</b> : ";
 	}
 	else
 	{
-		elem.insertAdjacentHTML("beforeend", "<b>" + user + "</b> ");
+		html += "<b>" + user + "</b> ";
 	}
 	
+	// Make links clickable
 	message = replaceUrlTextWithUrl(message);
-	message = message.replace(/(?:\r\n|\r|\n)/g, '<br/>');
 	
-	elem.insertAdjacentHTML("beforeend", message + "<br/>");
+	html += message + "</span><br/>";
+	
+	elem.insertAdjacentHTML("beforeend", html);
 }
 
 function sendMessage()
@@ -125,10 +128,11 @@ function sendMessage()
 			
 			var formData = new FormData();
 			formData.append("roomId", roomId);
+			formData.append("action", "send_message");
 			formData.append("message", sjcl.encrypt(encryptionKey, message, cryptoOptions));
 			
 			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "sendMessage.php");
+			xhr.open("POST", "action.php");
 			
 			xhr.onreadystatechange = function()
 			{
@@ -255,8 +259,10 @@ function replaceUrlTextWithUrl(content)
 {
 	var re = /((http|https|ftp):\/\/[\w?=&.\/-;#@~%+-]+(?![\w\s?&.\/;#~%"=-]*>))/ig;
 	content = content.replace(re, '<a href="$1" rel="nofollow" target="_blank">$1</a>');
+	
 	re = /((magnet):[\w?=&.\/-;#@~%+-]+)/ig;
 	content = content.replace(re, '<a href="$1">$1</a>');
+	
 	return content;
 }
 
@@ -292,10 +298,11 @@ function removeChatroom(withPassword)
 		
 		var formData = new FormData();
 		formData.append("roomId", roomId);
+		formData.append("action", "delete_chatroom");
 		formData.append("removePassword", removePassword);
 		
 		var xhr = new XMLHttpRequest();
-		xhr.open("POST", "removeChatroom.php");
+		xhr.open("POST", "action.php");
 		
 		xhr.onreadystatechange = function()
 		{

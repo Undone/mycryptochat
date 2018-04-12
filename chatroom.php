@@ -113,10 +113,11 @@
 			
 			var formData = new FormData();
 			formData.append("roomId", roomId);
+			formData.append("action", "register");
 			formData.append("username", username);
 			
 			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "register.php");
+			xhr.open("POST", "action.php");
 			
 			xhr.onreadystatechange = function()
 			{
@@ -167,7 +168,20 @@
 			<?php } ?>
 		}
 		
+		// Send disconnect message after closing the window
+		function onUnload()
+		{
+			var formData = new FormData();
+			formData.append("roomId", roomId);
+			formData.append("action", "disconnect");
+			
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "action.php");
+			xhr.send(formData);
+		}
+		
 		window.addEventListener("load", onLoad);
+		window.addEventListener("unload", onUnload);
 		window.addEventListener("mousemove", stopRefreshTitle);
 	</script>
 </body>
