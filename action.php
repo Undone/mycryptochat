@@ -95,6 +95,57 @@ switch($action)
 		
 		break;
 	}
+	
+	// Retrieve latest messages
+	case "get_messages":
+	{
+		$lastId = filter_input(INPUT_POST, "lastId", FILTER_VALIDATE_INT);
+		
+		if ($chatRoom && $user && isset($lastId))
+		{
+			// Room has expired
+			if ($chatRoom->dateEnd <= time())
+			{
+				$dbManager->deleteChatroom($roomid);
+				break;
+			}
+
+			// If the room is only allowed to have 2 users, delete it when a third user joins
+			if($chatRoom->noMoreThanOneVisitor && count($chatRoom->users) > 2)
+			{
+				$dbManager->deleteChatroom($roomid);
+				header("HTTP/1.1 403 Forbidden");
+				exit;
+			}
+
+			$dbManager->updateLastSeen($user);
+
+			// Loop over the rooms users, check if the current user is associated with the room
+			foreach($chatRoom->users as $key => $value)
+			{
+				// If the user hasn't pinged for NB_SECONDS_USER_TO_BE_DISCONNECTED, then disassociate the user from the room
+				if(($value->lastSeen + NB_SECONDS_USER_TO_BE_DISCONNECTED) < time())
+				{
+					if ($value->id != $user->id)
+					{
+						unset($chatRoom->users[$key]);
+						$dbManager->addEventMessage($value, "timed out");
+						$dbManager->deleteUser($value);
+					}
+				}
+			}
+
+			// Get the latest messages, but not messages we have already received
+			$messages = $dbManager->getLastMessages($chatRoom->id, NB_MESSAGES_TO_KEEP, $lastId);
+
+			header("HTTP/1.1 200 OK");
+			header('Content-Type: application/json');
+			echo '{"messages": ', json_encode($messages), ', "users": ', json_encode($chatRoom->getUsernames()),'}';
+			exit;
+		}
+		
+		break;
+	}
 }
 
 header("HTTP/1.1 400 Bad Request");

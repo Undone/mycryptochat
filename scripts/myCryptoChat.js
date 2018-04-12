@@ -163,10 +163,11 @@ function getMessages(changeTitle)
 	
 	var formData = new FormData();
 	formData.append("roomId", roomId);
+	formData.append("action", "get_messages");
 	formData.append("lastId", lastMessageId);
 	
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", "getMessages.php");
+	xhr.open("POST", "action.php");
 	xhr.responseType = "json";
 	
 	xhr.onreadystatechange = function()
