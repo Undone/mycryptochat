@@ -311,7 +311,7 @@ td button {
 /* custom css */
 #chatroom {
     border: 1px solid gray;
-	width: 85%;
+	width: 90%;
     padding: 10px;
     overflow: auto;
 	order: 1;
@@ -332,12 +332,12 @@ td button {
 	flex-direction: row;
 	height: 60vh;
 	flex: 1;
-	background-color: #ededed;
+	background-color: white;
 }
 
 #chatusers {
-	width: 15%;
-	min-width: 100px;
+	width: 10%;
+	min-width: 80px;
 	border: 1px solid gray;
 	border-left: 0;
 	overflow-y: auto;
@@ -363,6 +363,14 @@ td button {
 	border: 1px solid gray;
 	border-top: 0;
 	border-radius: 0 0 5px 5px;
+}
+
+.chat-message a {
+	color: blue;
+}
+
+.chat-message-event {
+	color: #c500da;
 }
 
 #divButtonRemoveChatroom {
