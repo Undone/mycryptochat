@@ -62,6 +62,48 @@ switch($action)
 		break;
 	}
 	
+	// Create a new chatroom
+	case "create_chatroom":
+	{
+		$expire 		= filter_input(INPUT_POST, "expire");
+		$removable 		= filter_input(INPUT_POST, "removable");
+		$removePassword = filter_input(INPUT_POST, "removePassword");
+		$selfDestroys 	= filter_input(INPUT_POST, "selfDestroys");
+		
+		if(array_key_exists($expire, $allowedTimes))
+		{
+			$selfDestroys 	= $selfDestroys == 'true';
+			$removable 		= $removable == 'true';
+
+			// we generate a random key
+			$key = randomString(20);
+			$time = time();
+
+			// we create the chat room object
+			$chatRoom 						= new ChatRoom($key);
+			$chatRoom->dateCreation 		= $time;
+			$chatRoom->dateEnd 				= $expire != 0 ? $time + ($expire * 60) : 0;
+			$chatRoom->noMoreThanOneVisitor = $selfDestroys;
+			$chatRoom->isRemovable 			= $removable;
+			$chatRoom->removePassword 		= $removePassword || ""; // Should probably change the database to allow NULL types
+
+			// we delete old chatrooms
+			$dbManager->cleanChatrooms();
+
+			// we save the chat room in the database
+			$dbManager->createChatroom($chatRoom);
+
+			header("HTTP/1.1 201 Created");
+			header("Content-Type: application/json");
+			
+			// Send the roomid as a json string
+			echo json_encode($key);
+			exit;
+		}
+		
+		break;
+	}
+	
 	// Delete the chatroom, if it's been flagged as removable
 	case "delete_chatroom":
 	{

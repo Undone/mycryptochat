@@ -107,30 +107,85 @@ require 'inc/functions.php';
         <section class="content-wrapper main-content clear-fix">
 			<h2>Create a chatroom</h2>
             <p>Chat using end-to-end encryption</p>
-            <form method="POST" action="newroom.php">
-                <label for="nbMinutesToLive">Lifetime of the chat room:</label>
-                <select id="nbMinutesToLive" name="nbMinutesToLive">
+            <form method="POST" onsubmit="return createChatroom()">
+                <label for="expire">Lifetime of the chat room:</label>
+                <select id="expire" name="expire">
                     <?php foreach ($allowedTimes as $minutes => $label) { ?>
                         <option value="<?php echo $minutes; ?>"><?php echo $label; ?></option>
                     <?php } ?>
                 </select><br />
                 <br />
-				<input type="checkbox" name="isRemovable" id="isRemovable" value="true" onchange="if(this.checked) { $('#divRemovePassword').show(); } else { $('#divRemovePassword').hide(); }" />
-                <label for="isRemovable" class="labelIndex">Is removable</label>
+				<input type="checkbox" id="removable"/>
+                <label for="removable" class="labelIndex">Is removable</label>
 				<br />
 				<div id="divRemovePassword">
 					<br /><label for="removePassword">Password to remove:</label>
-					<input type="password" name="removePassword" value="" />
+					<input type="password" id="removePassword" value="" />
 				</div>
 				<br />
-				<input type="checkbox" name="selfDestroys" id="selfDestroys" value="true" />
+				<input type="checkbox" id="selfDestroys"/>
                 <label for="selfDestroys" class="labelIndex">Self-destroys if more than one visitor</label>
 				<br />
 				<br />
-                <input type="submit" value="Create a new chat room" />
+                <input type="submit" value="Create a new chat room"/>
             </form>
         </section>
     </div>
+	<script type="text/javascript">
+		function createChatroom()
+		{
+			var expire 			= document.getElementById("expire").value;
+			var removable 		= document.getElementById("removable").checked;
+			var removePassword 	= document.getElementById("removePassword").value;
+			
+			var formData = new FormData();
+			formData.append("action", "create_chatroom");
+			formData.append("expire", expire);
+			formData.append("removable", removable);
+			
+			if (removable)
+			{
+				formData.append("removePassword", removePassword);
+			}
+			
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "action.php");
+			xhr.responseType = "json";
+			xhr.onreadystatechange = function()
+			{
+				if (xhr.readyState === XMLHttpRequest.DONE)
+				{
+					if (xhr.status === 201)
+					{
+						window.location = "chatroom.php?id=" + xhr.response;
+					}
+					else
+					{
+						alert("Failed to create the chatroom!");
+					}
+				}
+			}
+			xhr.send(formData);
+			
+			return false;
+		}
+		
+		function removableChanged(event)
+		{
+			var passwordElement = document.getElementById("divRemovePassword");
+			
+			if(this.checked)
+			{
+				passwordElement.style.display = "block";
+			}
+			else
+			{
+				passwordElement.style.display = "none";
+			}
+		}
+		
+		document.getElementById("removable").addEventListener("change", removableChanged);
+	</script>
     <footer>
 		<p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
     </footer>
