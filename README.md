@@ -2,7 +2,7 @@ MyCryptoChat
 ============
 
 MyCryptoChat is a PHP and Javascript based chat with end-to-end encryption. The database will only contain your encrypted messages, and will have no knowledge of the decryption key.
-Encryption is provided by the Stanford Javascript Crypto Library, using 256-bit AES-GCM.
+Encryption is provided by the [Stanford Javascript Crypto Library](https://github.com/bitwiseshiftleft/sjcl), using 256-bit AES-GCM.
 
 This is a rework of HowTommy's [MyCryptoChat](https://github.com/HowTommy/mycryptochat)
 
