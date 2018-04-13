@@ -10,7 +10,6 @@ $dbManager = new DbManager();
 
 $roomid		= filter_input(INPUT_POST, "roomId");
 $action		= filter_input(INPUT_POST, "action");
-$username 	= filter_input(INPUT_POST, "username");
 $chatRoom 	= $dbManager->GetChatroom($roomid);
 $session	= ChatUser::GetSession($roomid);
 $user		= $dbManager->getUser($session);
@@ -20,6 +19,8 @@ switch($action)
 	// Create a session for user and set the username after entering username on chatroom join
 	case "register":
 	{
+		$username = filter_input(INPUT_POST, "username");
+		
 		if ($chatRoom && !$user && $username)
 		{
 			// Create new session
@@ -148,4 +149,5 @@ switch($action)
 	}
 }
 
+// If no conditions are met, it's a bad request
 header("HTTP/1.1 400 Bad Request");
