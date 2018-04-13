@@ -6,6 +6,8 @@ Encryption is provided by the [Stanford Javascript Crypto Library](https://githu
 
 This is a rework of HowTommy's [MyCryptoChat](https://github.com/HowTommy/mycryptochat)
 
+The project is being hosted at [mycryptochat.org](https://mycryptochat.org/)
+
 # Requirements
 
 PHP 5.6+
