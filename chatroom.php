@@ -26,18 +26,15 @@
 <body>
 	<header>
 		<div class="content-wrapper">
-			<div class="float-left">
-				<p class="site-title"><a href="index.php">MyCryptoChat</a></p>
-			</div>
-			<div class="float-right">
-				<nav>
-					<ul id="menu">
-						<li><a href="index.php">Home</a></li>
+			<nav>
+				<ul>
+					<li id="site-title"><a href="index.php">MyCryptoChat</a></li>
+					<div id="site-links">
 						<li><a href="stats.php">Stats</a></li>
 						<li><a href="about.php">About</a></li>
-					</ul>
-				</nav>
-			</div>
+					</div>
+				</ul>
+			</nav>
 		</div>
 	</header>
 	<div id="body" style="display: none">
@@ -67,10 +64,11 @@
 	</div>
 	<div id="body_username">
 		<section class="content-wrapper main-content clear-fix">
-			<h2>Join chatroom</h2>
-			<div class="mb20">You need to choose a username before joining the chatroom</div>
+			<h1>Join chatroom</h1>
+			<p>You need to choose a username before joining the chatroom.</p>
 			<form method="POST" onsubmit="return setUsername()">
-				<label>Username: <input type="text" id="username" required/> <input type="submit" value="Enter"/></label>
+				<input type="text" id="username" placeholder="Enter username" required/>
+				<input type="submit" value="Enter"/>
 			</form>
 		</section>
 	</div>

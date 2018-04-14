@@ -13,40 +13,37 @@ $nbMessages = $dbManager->GetNbMessages();
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>Stats - MyCryptoChat</title>
-    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
-    <meta name="viewport" content="width=device-width" />
-    <link href="styles/myCryptoChat.css" rel="stylesheet" />
+	<meta charset="utf-8" />
+	<title>Stats - MyCryptoChat</title>
+	<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+	<meta name="viewport" content="width=device-width" />
+	<link href="styles/myCryptoChat.css" rel="stylesheet" />
 </head>
 <body>
-    <header>
-        <div class="content-wrapper">
-            <div class="float-left">
-                <p class="site-title"><a href="index.php">MyCryptoChat</a></p>
-            </div>
-            <div class="float-right">
-                <nav>
-                    <ul id="menu">
-                        <li><a href="index.php">Home</a></li>
-                        <li><a href="stats.php">Stats</a></li>
-                        <li><a href="about.php">About</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    </header>
-    <div id="body">
-        <section class="content-wrapper main-content clear-fix">
-            <h2>Stats about MyCryptoChat</h2>
-            <p>
-                Number of chat rooms: <?php echo $nbChatrooms; ?><br />
-                Number of messages: <?php echo $nbMessages; ?>
-            </p>
-        </section>
-    </div>
-    <footer>
+	<header>
+		<div class="content-wrapper">
+			<nav>
+				<ul>
+					<li id="site-title"><a href="index.php">MyCryptoChat</a></li>
+					<div id="site-links">
+						<li><a href="stats.php">Stats</a></li>
+						<li><a href="about.php">About</a></li>
+					</div>
+				</ul>
+			</nav>
+		</div>
+	</header>
+	<div id="body">
+		<section class="content-wrapper main-content clear-fix">
+			<h2>Stats about MyCryptoChat</h2>
+			<p>
+				Number of chat rooms: <?php echo $nbChatrooms; ?><br />
+				Number of messages: <?php echo $nbMessages; ?>
+			</p>
+		</section>
+	</div>
+	<footer>
 		<p>&copy; 2018 MyCryptoChat <?php echo MYCRYPTOCHAT_VERSION; ?> by <a href="https://github.com/Undone/mycryptochat">Undone</a></p>
-    </footer>
+	</footer>
 </body>
 </html>

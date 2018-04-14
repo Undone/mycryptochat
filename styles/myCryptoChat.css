@@ -1,41 +1,30 @@
-﻿html {
-    background-color: #e2e2e2;
-    margin: 0;
-    padding: 0;
+﻿/*
+----------------------------------------------------------
+	Main layout
+----------------------------------------------------------
+*/
+
+html {
+    background-color: #E4E4E4;
+	font-family: "Segoe UI", Verdana, Helvetica, sans-serif;
 }
 
 body {
-    background-color: #fff;
-    color: #333;
-    font-size: .85em;
-    font-family: "Segoe UI", Verdana, Helvetica, sans-serif;
-    margin: 0;
     padding: 0;
+	margin: 0;
 }
 
-a {
-    color: #333;
-    text-decoration: underline;
+h1 {
+	font-size: 1.5em;
 }
 
-    a:link, a:visited,
-    a:active, a:hover {
-        color: #333;
-    }
-
-    a:hover {
-        background-color: #c7d1d6;
-    }
-
-header, footer, hgroup,
-nav, section {
-    display: block;
+h1 span {
+	font-size: 0.6em;
+	color: gray;
 }
 
-mark {
-    background-color: #a6dbed;
-    padding-left: 5px;
-    padding-right: 5px;
+h2 {
+	font-size: 1.25em;
 }
 
 .float-left {
@@ -54,50 +43,19 @@ mark {
     visibility: hidden;
 }
 
-h1, h2, h3,
-h4, h5, h6 {
-    color: #000;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-h1 {
-    font-size: 2em;
-}
-
-h2 {
-    font-size: 1.75em;
-}
-
-h3 {
-    font-size: 1.2em;
-}
-
-h4 {
-    font-size: 1.1em;
-}
-
-h5, h6 {
-    font-size: 1em;
-}
-
-    h5 a:link, h5 a:visited, h5 a:active {
-        padding: 0;
-        text-decoration: none;
-    }
-
-
-/* main layout
-----------------------------------------------------------*/
 .content-wrapper {
     margin: 0 auto;
     max-width: 960px;
 }
 
-#body, #body_username {
-    background-color: #efeeef;
-    clear: both;
-	padding-bottom: 5vh;
+.container {
+	display: flex;
+	flex-flow: row wrap;
+}
+
+.row {
+	display: flex;
+	flex-wrap: wrap;
 }
 
 .main-content {
@@ -105,89 +63,89 @@ h5, h6 {
     padding-left: 10px;
 }
 
-header .content-wrapper {
-    padding-top: 20px;
-}
-
 footer {
-	display: flex;
-    background-color: #e2e2e2;
+	margin-top: 5vh;
     font-size: .8em;
-	justify-content: center;
+	text-align: center;
 }
 
+#divRemovePassword {
+    display: none;
+}
 
-/* site title
-----------------------------------------------------------*/
-.site-title a, .site-title a:hover, .site-title a:active
-{
-	background: none;
-    color: #999;
-    font-family: Rockwell, Consolas, "Courier New", Courier, monospace;
-    font-size: 2em;
+/*
+----------------------------------------------------------
+	Navigation bar
+----------------------------------------------------------
+*/
+
+header {
+	background-color: #0066cc;
+	color: white;
+	padding-bottom: 1vh;
+}
+
+header .content-wrapper {
+    padding-top: 1vh;
+}
+
+nav ul {
 	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	list-style-type: none;
+	overflow: hidden;
+	margin: 0;
+	padding: 5px;
 	align-items: center;
-	justify-content: center;
+}
+
+nav ul li {
+	margin: 0 8px;
+}
+
+header a {
+	font-size: 1.1em;
+	color: white;
+	font-weight: bold;
 	text-decoration: none;
 }
 
-/* menu
-----------------------------------------------------------*/
-ul#menu {
-	display: block;
-    font-size: 1.3em;
-    font-weight: 600;
-    margin: 0 0 5px;
-    padding: 0;
-    text-align: right;
+header a:hover {
+	color: #999999;
 }
 
-ul#menu li {
-	display: inline;
-	list-style: none;
-	padding-left: 15px;
+#site-title
+{
+	margin-left: 0;
+	margin-right: auto;
+    font-family: Rockwell, Consolas, "Courier New", Courier, monospace;
+    font-size: 1.5em;
 }
 
-ul#menu li a {
-	background: none;
-	color: #999;
-	text-decoration: none;
+#site-links {
+	display: flex;
 }
 
-ul#menu li a:hover {
-	color: #333;
-	text-decoration: none;
+/*
+----------------------------------------------------------
+	Controls
+----------------------------------------------------------
+*/
+
+select {
+	padding: 3px;
+	font-size: 1em;
 }
-
-/* forms */
-fieldset {
-    border: none;
-    margin: 0;
-    padding: 0;
-}
-
-    fieldset legend {
-        display: none;
-    }
-
-    fieldset ol {
-        padding: 0;
-        list-style: none;
-    }
-
-        fieldset ol li {
-            padding-bottom: 5px;
-        }
 
 label {
-    display: block;
-    font-size: 1.2em;
-    font-weight: 600;
+    display: inline;
 }
 
-    label.checkbox {
-        display: inline;
-    }
+label.checkbox {
+	font-weight: bold;
+}
 
 input, textarea {
     border: 1px solid #e2e2e2;
@@ -217,14 +175,22 @@ input[type="checkbox"] {
 input[type="submit"],
 input[type="button"],
 button {
-    background-color: #d3dce0;
+	color: black;
+    background-color: #FFF;
     border: 1px solid #787878;
+	border-radius: 5px;
     cursor: pointer;
     font-size: 1.2em;
     font-weight: 600;
     padding: 7px;
     margin-right: 8px;
     width: auto;
+}
+
+input[type="submit"]:hover,
+input[type="button"]:hover,
+button:hover {
+	background-color: gray;
 }
 
 td input[type="submit"],
@@ -235,96 +201,18 @@ td button {
     margin-right: 4px;
 }
 
-/********************
-*   Mobile Styles   *
-********************/
-@media only screen and (max-width: 850px) {
+/*
+----------------------------------------------------------
+	Chatroom
+----------------------------------------------------------
+*/
 
-    /* header
-    ----------------------------------------------------------*/
-    header .float-left,
-    header .float-right {
-        float: none;
-    }
-
-    /* logo */
-    header .site-title {
-        margin: 10px;
-        text-align: center;
-    }
-
-    /* menu */
-    nav {
-        margin-bottom: 5px;
-    }
-
-    ul#menu {
-        margin: 0;
-        padding: 0;
-        text-align: center;
-    }
-
-        ul#menu li {
-            margin: 0;
-            padding: 0;
-        }
-
-
-    /* main layout
-    ----------------------------------------------------------*/
-    .main-content,
-    .featured + .main-content {
-        background-position: 10px 0;
-    }
-
-    .content-wrapper {
-        padding-right: 10px;
-        padding-left: 10px;
-    }
-
-    .featured .content-wrapper {
-        padding: 10px;
-    }
-
-    /* forms */
-    input {
-        width: 90%;
-    }
-
-    /* footer
-    ----------------------------------------------------------*/
-    footer .float-left,
-    footer .float-right {
-        float: none;
-    }
-
-    footer {
-        text-align: center;
-        padding: 10px 0;
-    }
-
-        footer p {
-            margin: 0;
-        }
-}
-
-/* custom css */
 #chatroom {
     border: 1px solid gray;
 	width: 90%;
     padding: 10px;
     overflow: auto;
 	order: 1;
-}
-
-.container {
-	display: flex;
-	flex-flow: row wrap;
-}
-
-.row {
-	display: flex;
-	flex-wrap: wrap;
 }
 
 .chat-container {
@@ -378,12 +266,56 @@ td button {
     font-size: 0.8em;
 }
 
-.labelIndex {
-    font-weight: normal;
-    display: inline;
-    font-size: 1.0em;
-}
+/*
+----------------------------------------------------------
+	Mobile
+----------------------------------------------------------
+*/
 
-#divRemovePassword {
-    display: none;
+@media only screen and (max-width: 850px) {
+
+	h1 span {
+		display: block;
+	}
+	
+	nav ul {
+		justify-content: flex-start;
+	}
+
+    /* main layout
+    ----------------------------------------------------------*/
+    .main-content,
+    .featured + .main-content {
+        background-position: 10px 0;
+    }
+
+    .content-wrapper {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    .featured .content-wrapper {
+        padding: 10px;
+    }
+
+    /* forms */
+    input {
+        width: 90%;
+    }
+
+    /* footer
+    ----------------------------------------------------------*/
+    footer .float-left,
+    footer .float-right {
+        float: none;
+    }
+
+    footer {
+        text-align: center;
+        padding: 10px 0;
+    }
+
+        footer p {
+            margin: 0;
+        }
 }

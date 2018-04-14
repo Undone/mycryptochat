@@ -12,20 +12,17 @@
 	</head>
 	<body>
 		<header>
-			<div class="content-wrapper">
-				<div class="float-left">
-					<p class="site-title"><a href="index.php">MyCryptoChat</a></p>
-				</div>
-				<div class="float-right">
-					<nav>
-						<ul id="menu">
-							<li><a href="index.php">Home</a></li>
-							<li><a href="stats.php">Stats</a></li>
-							<li><a href="about.php">About</a></li>
-						</ul>
-					</nav>
-				</div>
-			</div>
+		<div class="content-wrapper">
+			<nav>
+				<ul>
+					<li id="site-title"><a href="index.php">MyCryptoChat</a></li>
+					<div id="site-links">
+						<li><a href="stats.php">Stats</a></li>
+						<li><a href="about.php">About</a></li>
+					</div>
+				</ul>
+			</nav>
+		</div>
 		</header>
 		<div id="body">
 			<section class="content-wrapper main-content clear-fix">
