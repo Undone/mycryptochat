@@ -301,7 +301,6 @@ function removeChatroom(withPassword)
 			{
 				if (xhr.status === 200)
 				{
-					alert('The chat room has been removed.');
 					window.location = 'index.php';
 				}
 				else if (xhr.status === 403)
