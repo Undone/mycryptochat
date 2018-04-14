@@ -21,7 +21,7 @@
 	<title>MyCryptoChat</title>
 	<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
 	<meta name="viewport" content="width=device-width" />
-	<link href="styles/myCryptoChat.css" rel="stylesheet" />
+	<link href="style.css" rel="stylesheet" />
 </head>
 <body>
 	<header>
@@ -48,6 +48,7 @@
 					<input type="text" id="textMessage" placeholder="Type to chat" onkeydown="if (event.keyCode == 13) { sendMessage(); }"/>
 				</div>
 			</div>
+			<p id="chatroom-expire"></p>
 			<div>
 				<?php 
 					if($chatRoom && $chatRoom->isRemovable) {
@@ -82,6 +83,7 @@
 		var checkIntervalTimer;
 		var isRefreshTitle = false;
 		var refreshTitleInterval;
+		var chatroomExpires = <?php echo $chatRoom->dateEnd; ?>;
 		
 		function displayChat()
 		{
@@ -146,6 +148,13 @@
 				isRefreshTitle = false;
 			}
 		}
+		
+		function convertUnixTimestamp(timestamp)
+		{
+			var date = new Date(timestamp * 1000);
+			
+			return date.toLocaleString();
+		}
 
 		function onLoad()
 		{
@@ -163,6 +172,10 @@
 			
 			<?php if ($user) { ?>
 				displayChat();
+			<?php } if ($chatRoom->dateEnd > 0) { ?>
+				var timestamp = convertUnixTimestamp(<?php echo $chatRoom->dateEnd; ?>);
+			
+				document.getElementById("chatroom-expire").innerHTML = "Room will expire at " + htmlEncode(timestamp);
 			<?php } ?>
 		}
 		
