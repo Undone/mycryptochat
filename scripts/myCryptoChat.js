@@ -6,8 +6,7 @@ var cryptoOptions = {
 };
 
 // What's the id of the latest message received
-var lastMessageId = 0;
-
+var lastMessageId 			= 0;
 var messageReceived 		= new Audio("beep.ogg");
 var eventMessageReceived 	= new Audio("beep2.ogg");
 
@@ -87,20 +86,16 @@ function addChatMessage(elem, chatMessage, key)
 	}
 	
 	var html = "<span class='" + (isEvent ? "chat-message-event" : "chat-message") + "'>";
-	html += "[" + getDateFromTimestamp(date) + "] ";
+	html += "[" + getDateFromTimestamp(date) + "] <b>" + user + "</b> ";
 	
 	if (!isEvent)
 	{
-		html += "<b>" + user + "</b> : ";
+		html += ": ";
+		
+		// Make links clickable
+		message = replaceUrlTextWithUrl(message);
 	}
-	else
-	{
-		html += "<b>" + user + "</b> ";
-	}
-	
-	// Make links clickable
-	message = replaceUrlTextWithUrl(message);
-	
+
 	html += message + "</span><br/>";
 	
 	elem.insertAdjacentHTML("beforeend", html);
@@ -236,18 +231,13 @@ function getMessages(changeTitle)
 			{
 				if (chatRoom !== null)
 				{
-					chatRoom.innerHTML = "<i>Your session has expired.</i>";
+					chatRoom.innerHTML = "<i>This conversation is over... You should start a new one to keep talking!</i>";
 					stopTimerCheck();
 				}
 			}
 			else if (xhr.status === 403)
 			{
 				chatRoom.innerHTML = "<i>This conversation self-destroyed. It was only created for one visitor.</i>";
-				stopTimerCheck();
-			}
-			else if (xhr.status === 404)
-			{
-				chatRoom.innerHTML = "<i>This conversation is over... You should start a new one to keep talking!</i>";
 				stopTimerCheck();
 			}
 		}
