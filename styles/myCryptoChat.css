@@ -66,7 +66,16 @@ h2 {
 footer {
 	margin-top: 5vh;
     font-size: .8em;
+	color: gray;
 	text-align: center;
+}
+
+footer a {
+	text-decoration: none;
+}
+
+footer a:hover {
+	text-decoration: underline;
 }
 
 #divRemovePassword {
