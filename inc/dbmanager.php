@@ -95,7 +95,7 @@ class DbManager
 		$idleTime 	= $time - (DAYS_TO_DELETE_IDLE_CHATROOM * 24 * 60 * 60);
 		
 		// Delete expired rooms
-		$query = "DELETE FROM rooms WHERE rooms.expire < :time";
+		$query = "DELETE FROM rooms WHERE rooms.expire > 0 AND rooms.expire < :time";
 		$req = $this->db->prepare($query);
 		$req->bindValue(":time", $time, PDO::PARAM_INT);
 		$req->execute();

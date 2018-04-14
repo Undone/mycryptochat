@@ -147,7 +147,7 @@ switch($action)
 		if ($chatRoom && $user && isset($lastId))
 		{
 			// Room has expired
-			if ($chatRoom->dateEnd <= time())
+			if ($chatRoom->dateEnd > 0 && $chatRoom->dateEnd <= time())
 			{
 				$dbManager->deleteChatroom($roomid);
 				break;
