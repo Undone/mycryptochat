@@ -262,6 +262,12 @@ td button {
 	border-radius: 0 0 5px 5px;
 }
 
+#chatroom-expire {
+	color: gray;
+	font-size: 0.8em;
+	text-align: right;
+}
+
 .chat-message a {
 	color: blue;
 }

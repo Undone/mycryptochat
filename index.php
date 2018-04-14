@@ -8,7 +8,7 @@ require 'inc/functions.php';
 	<title>MyCryptoChat</title>
 	<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
 	<meta name="viewport" content="width=device-width" />
-	<link href="styles/myCryptoChat.css" rel="stylesheet" />
+	<link href="style.css" rel="stylesheet" />
 </head>
 <body>
 	<?php
