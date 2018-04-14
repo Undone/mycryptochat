@@ -248,10 +248,10 @@ function getMessages(changeTitle)
 
 function replaceUrlTextWithUrl(content)
 {
-	var re = /((http|https|ftp):\/\/[\w?=&.\/-;#@~%+-]+(?![\w\s?&.\/;#~%"=-]*>))/ig;
+	var re = /((https|http|ftp):\/\/(\S|,)+)/ig;
 	content = content.replace(re, '<a href="$1" rel="nofollow" target="_blank">$1</a>');
 	
-	re = /((magnet):[\w?=&.\/-;#@~%+-]+)/ig;
+	re = /((magnet):\/\/(\S|,)+)/ig;
 	content = content.replace(re, '<a href="$1">$1</a>');
 	
 	return content;
