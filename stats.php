@@ -8,8 +8,6 @@ require 'inc/dbmanager.php';
 
 $dbManager = new DbManager();
 
-$nbChatrooms = $dbManager->GetNbChatRooms();
-$nbMessages = $dbManager->GetNbMessages();
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,8 +35,8 @@ $nbMessages = $dbManager->GetNbMessages();
 		<section class="content-wrapper main-content clear-fix">
 			<h2>Stats about MyCryptoChat</h2>
 			<p>
-				Number of chat rooms: <?php echo $nbChatrooms; ?><br />
-				Number of messages: <?php echo $nbMessages; ?>
+				Number of chat rooms: <?php echo $dbManager->countChatrooms(); ?><br />
+				Number of messages: <?php echo $dbManager->countMessages(); ?>
 			</p>
 		</section>
 	</div>

@@ -226,53 +226,21 @@ class DbManager
 		$this->addMessage($eventMessage);
 	}
 	
-	function GetNbChatRooms() {
-		try {
-			$query = 'SELECT COUNT(id) FROM rooms';
-			
-			$req = $this->db->prepare($query);
-			
-			$req->execute();
-			
-			$result = $req->fetchAll();
-			
-			if(is_null($result) || count($result) != 1) {
-				return -1;
-			}
-			
-			$resultRow = $result[0];
-			
-			return $resultRow[0];
-		}
-		catch (Exception $e) 
-		{
-			logException($e);
-			die('Error: database error.');
-		}
+	public function countChatrooms()
+	{
+		$query = "SELECT COUNT(id) FROM rooms";
+		$req = $this->db->prepare($query);
+		$req->execute();
+		
+		return $req->fetchColumn();
 	}
 	
-	function GetNbMessages() {
-		try {
-			$query = 'SELECT COUNT(roomid) FROM messages';
-			
-			$req = $this->db->prepare($query);
-			
-			$req->execute();
-			
-			$result = $req->fetchAll();
-			
-			if(is_null($result) || count($result) != 1) {
-				return -1;
-			}
-			
-			$resultRow = $result[0];
-			
-			return $resultRow[0];
-		}
-		catch (Exception $e) 
-		{
-			logException($e);
-			die('Error: database error.');
-		}
+	public function countMessages()
+	{
+		$query = "SELECT COUNT(roomid) FROM messages";
+		$req = $this->db->prepare($query);
+		$req->execute();
+		
+		return $req->fetchColumn();
 	}
 }
