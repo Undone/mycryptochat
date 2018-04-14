@@ -83,7 +83,6 @@
 		var checkIntervalTimer;
 		var isRefreshTitle = false;
 		var refreshTitleInterval;
-		var chatroomExpires = <?php echo $chatRoom->dateEnd; ?>;
 		
 		function displayChat()
 		{
