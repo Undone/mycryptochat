@@ -85,7 +85,16 @@ switch($action)
 			$chatRoom->dateEnd 				= $expire != 0 ? $time + ($expire * 60) : 0;
 			$chatRoom->noMoreThanOneVisitor = $selfDestroys;
 			$chatRoom->isRemovable 			= $removable;
-			$chatRoom->removePassword 		= $removePassword || ""; // Should probably change the database to allow NULL types
+			
+			// Store a sha256 hash of the removal password instead of plain-text
+			if (is_string($removePassword) && $removePassword != "")
+			{
+				$chatRoom->removePassword = hash("sha256", $removePassword);
+			}
+			else
+			{
+				$chatRoom->removePassword = ""; // Should probably change the database to allow NULL types
+			}
 
 			// we delete old chatrooms
 			$dbManager->cleanChatrooms();
@@ -107,9 +116,11 @@ switch($action)
 	// Delete the chatroom, if it's been flagged as removable
 	case "delete_chatroom":
 	{
+		$password = filter_input(INPUT_POST, "removePassword");
+		
 		if ($chatRoom && $chatRoom->isRemovable)
 		{
-			if ($chatRoom->removePassword != $password)
+			if ($chatRoom->removePassword != "" && $chatRoom->removePassword != hash("sha256", $password))
 			{
 				header("HTTP/1.1 403 Forbidden");
 				exit;
