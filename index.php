@@ -111,6 +111,7 @@ require 'inc/functions.php';
 			</select>
 			<br/>
 			<p><b>Note:</b> Rooms will be deleted after <?php echo DAYS_TO_DELETE_IDLE_CHATROOM; ?> days of inactivity, regardless of the expiration time.</p>
+			<br/>
 			<input type="checkbox" id="removable"/>
 			<label for="removable" class="checkbox">The chatroom can be manually deleted</label>
 			<br/>
