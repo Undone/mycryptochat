@@ -121,7 +121,7 @@ require 'inc/functions.php';
 			</div>
 			<br/>
 			<input type="checkbox" id="selfDestroys"/>
-			<label for="selfDestroys" class="checkbox">Self-destroys if more than one visitor</label>
+			<label for="selfDestroys" class="checkbox">Self-destroys if more than two concurrent users join the chat</label>
 			<br/>
 			<br/>
 			<input type="submit" value="Create a new chat room"/>
