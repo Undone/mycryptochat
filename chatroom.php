@@ -6,13 +6,18 @@
 	require 'inc/classes.php';
 	require 'inc/dbmanager.php';
 
-	$dbManager = new DbManager();
-
+	$dbManager 	= new DbManager();
 	$roomid		= filter_input(INPUT_GET, "id");
-	$username 	= filter_input(INPUT_POST, "username");
+	
+	if (!$roomid)
+	{
+		header("HTTP/1.1 400 Bad Request");
+		die("You need to specify an ID");
+	}
+	
 	$chatRoom 	= $dbManager->GetChatroom($roomid);
 	$session	= ChatUser::GetSession($roomid);
-	$user		= $dbManager->getUser($session);
+	$user 		= $dbManager->getUser($session);
 ?>
 <!DOCTYPE html>
 <html lang="en">

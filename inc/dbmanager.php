@@ -29,7 +29,7 @@ class DbManager
 		}
 	}
 	
-	public function deleteUser($user)
+	public function deleteUser(ChatUser $user)
 	{
 		$query = "DELETE FROM sessions WHERE id = ?";
 		
@@ -38,7 +38,7 @@ class DbManager
 		$req->execute();
 	}
 	
-	public function saveUser($user)
+	public function saveUser(ChatUser $user)
 	{
 		$query 	= "INSERT INTO sessions (id, roomid, username, lastSeen) VALUES (?, ?, ?, ?)";
 		$req 	= $this->db->prepare($query);
@@ -51,7 +51,7 @@ class DbManager
 		));
 	}
 	
-	public function getUser($session)
+	public function getUser(string $session = null)
 	{
 		if (!$session)
 		{
@@ -73,7 +73,7 @@ class DbManager
 		return $result[0];
 	}
 	
-	public function createChatroom($chatRoom)
+	public function createChatroom(ChatRoom $chatRoom)
 	{
 		$query = 'INSERT INTO rooms (id, created, expire, singleuser, removable, removepassword) VALUES (?, ?, ?, ?, ?, ?)';
 		
@@ -117,7 +117,7 @@ class DbManager
 		$req->execute();
 	}
 	
-	public function deleteChatroom($roomid)
+	public function deleteChatroom(string $roomid)
 	{
 		$query = "DELETE FROM sessions WHERE roomid = :roomid";
 		$req = $this->db->prepare($query);
@@ -135,7 +135,7 @@ class DbManager
 		$req->execute();
 	}
 	
-	public function GetChatroom($id)
+	public function getChatroom(string $id)
 	{
 		$query = 'SELECT created, expire, singleuser, removable, removepassword FROM rooms WHERE id = ?';
 		$req = $this->db->prepare($query);
@@ -171,7 +171,7 @@ class DbManager
 		return $chatRoom;
 	}
 	
-	public function updateLastSeen($user)
+	public function updateLastSeen(ChatUser $user)
 	{
 		$query = "UPDATE sessions SET lastSeen = ? WHERE id = ?";
 		$req = $this->db->prepare($query);
@@ -182,7 +182,7 @@ class DbManager
 		));
 	}
 	
-	public function getLastMessages($roomid, $maxMessages, $maxId = 0)
+	public function getLastMessages(string $roomid, int $maxMessages, int $maxId = 0)
 	{
 		$query = 'SELECT * FROM messages WHERE roomid = :id AND id > :maxid ORDER BY date DESC LIMIT :limit';
 
@@ -200,7 +200,7 @@ class DbManager
 		return $messages;
 	}
 	
-	public function addMessage($chatMessage)
+	public function addMessage(ChatMessage $chatMessage)
 	{
 		$query = 'INSERT INTO messages (roomid, message, user, isEvent, date) VALUES (?, ?, ?, ?, ?)';
 
@@ -214,7 +214,7 @@ class DbManager
 		));
 	}
 	
-	public function addEventMessage($user, $message)
+	public function addEventMessage(ChatUser $user, string $message)
 	{
 		$eventMessage 			= new ChatMessage();
 		$eventMessage->roomid	= $user->roomid;

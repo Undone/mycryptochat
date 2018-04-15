@@ -10,12 +10,12 @@
 		public $isRemovable;
 		public $removePassword;
 		
-		public function __construct($id)
+		public function __construct(string $id)
 		{
 			$this->id = $id;
 		}
 		
-		public function addUser($user)
+		public function addUser(ChatUser $user)
 		{
 			if (!in_array($user, $this->users))
 			{
@@ -23,7 +23,7 @@
 			}
 		}
 		
-		public function removeUser($user)
+		public function removeUser(ChatUser $user)
 		{
 			foreach($this->users as $key => $value)
 			{
@@ -64,7 +64,7 @@
 		public $roomid;
 		public $lastSeen;
 		
-		public function __construct($id = null)
+		public function __construct(string $id = null)
 		{
 			if ($id)
 			{
@@ -73,12 +73,12 @@
 			}
 		}
 		
-		public function setUsername($username)
+		public function setUsername(string $username)
 		{
 			$this->username = $username;
 		}
 		
-		public static function Create($roomid)
+		public static function Create(string $roomid)
 		{
 			$session = generateRandomHash();
 			setcookie($roomid, $session);
@@ -89,7 +89,7 @@
 			return $user;
 		}
 		
-		public static function GetSession($roomid)
+		public static function GetSession(string $roomid)
 		{
 			$session = filter_input(INPUT_COOKIE, $roomid);
 			

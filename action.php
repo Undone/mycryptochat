@@ -8,11 +8,18 @@ require 'inc/dbmanager.php';
 
 $dbManager = new DbManager();
 
+$chatRoom	= null;
+$user		= null;
+
 $roomid		= filter_input(INPUT_POST, "roomId");
 $action		= filter_input(INPUT_POST, "action");
-$chatRoom 	= $dbManager->GetChatroom($roomid);
-$session	= ChatUser::GetSession($roomid);
-$user		= $dbManager->getUser($session);
+
+if ($roomid)
+{
+	$chatRoom 	= $dbManager->getChatroom($roomid);
+	$session	= ChatUser::GetSession($roomid);
+	$user		= $dbManager->getUser($session);
+}
 
 switch($action)
 {
