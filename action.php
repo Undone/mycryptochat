@@ -93,7 +93,7 @@ switch($action)
 			$chatRoom->noMoreThanOneVisitor = $selfDestroys;
 			$chatRoom->isRemovable 			= $removable;
 			
-			if (is_string($removePassword) && $removePassword != "")
+			if ($removable && is_string($removePassword) && $removePassword != "")
 			{
 				$chatRoom->removePassword = password_hash($removePassword, PASSWORD_BCRYPT);
 			}
