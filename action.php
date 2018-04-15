@@ -93,10 +93,9 @@ switch($action)
 			$chatRoom->noMoreThanOneVisitor = $selfDestroys;
 			$chatRoom->isRemovable 			= $removable;
 			
-			// Store a sha256 hash of the removal password instead of plain-text
 			if (is_string($removePassword) && $removePassword != "")
 			{
-				$chatRoom->removePassword = hash("sha256", $removePassword);
+				$chatRoom->removePassword = password_hash($removePassword, PASSWORD_BCRYPT);
 			}
 			else
 			{
@@ -127,7 +126,7 @@ switch($action)
 		
 		if ($chatRoom && $chatRoom->isRemovable)
 		{
-			if ($chatRoom->removePassword != "" && $chatRoom->removePassword != hash("sha256", $password))
+			if ($chatRoom->removePassword != "" && (!is_string($password) || !password_verify($password, $chatRoom->removePassword)))
 			{
 				header("HTTP/1.1 403 Forbidden");
 				exit;
