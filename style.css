@@ -276,6 +276,21 @@ td button {
 	color: #c500da;
 }
 
+.chat-message-image {
+	height: auto;
+	width: auto;
+	max-height: 80%;
+	max-width: 80%;
+	border: 1px solid gray;
+}
+
+.chat-message-video {
+	height: auto;
+	width: auto;
+	max-height: 80%;
+	max-width: 80%;
+}
+
 #divButtonRemoveChatroom {
     text-align: center;
     font-size: 0.8em;
