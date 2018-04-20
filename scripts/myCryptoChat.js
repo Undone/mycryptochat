@@ -9,6 +9,7 @@ var cryptoOptions = {
 var lastMessageId 			= 0;
 var messageReceived 		= new Audio("beep.ogg");
 var eventMessageReceived 	= new Audio("beep2.ogg");
+var shouldRenderMedia		= false;
 
 // Generate a key using sjcl, a word is 32 bits, 32 * 8 = 256 bits
 function generateKey()
@@ -246,13 +247,32 @@ function getMessages(changeTitle)
 	xhr.send(formData);
 }
 
+var regexProtocol = /((.*):\/\/(\S|,)+)/ig;
+var regexImage = /((https|http):\/\/.*\/.*\.(png|jpeg|jpg|gif)$)/ig;
+var regexURL = /((https|http|ftp):\/\/(\S|,)+)/ig;
+var regexVideo = /((https|http):\/\/.*\.(webm|mp4)$)/ig;
+
 function replaceUrlTextWithUrl(content)
 {
-	var re = /((https|http|ftp):\/\/(\S|,)+)/ig;
-	content = content.replace(re, '<a href="$1" rel="nofollow" target="_blank">$1</a>');
-	
-	re = /((.*):\/\/(\S|,)+)/ig;
-	content = content.replace(re, '<a href="$1">$1</a>');
+	if (content.match(regexProtocol))
+	{
+		if (content.match(regexImage) && shouldRenderMedia)
+		{
+			content = content.replace(regexImage, '<br/><a href="$1" rel="nofollow" target="_blank"><img class="chat-message-image" src="$1" alt="$1"/></a>');
+		}
+		else if (content.match(regexVideo) && shouldRenderMedia)
+		{
+			content = content.replace(regexVideo, '<br/><video class="chat-message-video" controls><source src="$1" type="video/$3"></video>');
+		}
+		else if (content.match(regexURL))
+		{
+			content = content.replace(regexURL, '<a href="$1" rel="nofollow" target="_blank">$1</a>');
+		}
+		else
+		{
+			content = content.replace(regexProtocol, '<a href="$1">$1</a>');
+		}
+	}
 	
 	return content;
 }
