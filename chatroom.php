@@ -52,7 +52,11 @@
 					<input type="text" id="textMessage" placeholder="Type to chat" onkeydown="if (event.keyCode == 13) { sendMessage(); }"/>
 				</div>
 			</div>
-			<p id="chatroom-expire"></p>
+			<div id="chatroom-footer">
+				<label><input type="checkbox" id="chatroom-render" onchange="toggleRender(this)"/> Render media</label>
+				<span id="chatroom-expire"></span>
+			</div>
+			
 			<div>
 				<?php 
 					if($chatRoom && $chatRoom->isRemovable) {
@@ -97,6 +101,18 @@
 
 			// try to get new messages every 1.5 seconds
 			checkIntervalTimer = setInterval("getMessages(true)", 1500);
+		}
+		
+		// Retrieve all messages again which makes the URL parser run with the new settings, I could also loop through the elements and refresh them that way
+		// but this seems like a more reasonable way to do it
+		function toggleRender(elem)
+		{
+			// Empty the chat panel
+			document.getElementById("chatroom").innerHTML = "";
+			
+			// Set the last message id to 0, this forces it to retrieve all messages
+			lastMessageId = 0;
+			getMessages(false);
 		}
 		
 		function setUsername()

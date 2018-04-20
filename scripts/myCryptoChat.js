@@ -9,7 +9,6 @@ var cryptoOptions = {
 var lastMessageId 			= 0;
 var messageReceived 		= new Audio("beep.ogg");
 var eventMessageReceived 	= new Audio("beep2.ogg");
-var shouldRenderMedia		= false;
 
 // Generate a key using sjcl, a word is 32 bits, 32 * 8 = 256 bits
 function generateKey()
@@ -254,6 +253,8 @@ var regexVideo = /((https|http):\/\/.*\.(webm|mp4)$)/ig;
 
 function replaceUrlTextWithUrl(content)
 {
+	var shouldRenderMedia = document.getElementById("chatroom-render").checked;
+	
 	if (content.match(regexProtocol))
 	{
 		if (content.match(regexImage) && shouldRenderMedia)
@@ -272,7 +273,7 @@ function replaceUrlTextWithUrl(content)
 		{
 			content = content.replace(regexProtocol, '<a href="$1">$1</a>');
 		}
-	}
+	}	
 	
 	return content;
 }

@@ -266,6 +266,13 @@ td button {
 	color: gray;
 	font-size: 0.8em;
 	text-align: right;
+	float: right;
+}
+
+#chatroom-footer {
+	margin-top: 10px;
+	margin-left: 5px;
+	margin-right: 5px;
 }
 
 .chat-message a {
