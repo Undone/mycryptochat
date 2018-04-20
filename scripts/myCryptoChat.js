@@ -251,7 +251,7 @@ function replaceUrlTextWithUrl(content)
 	var re = /((https|http|ftp):\/\/(\S|,)+)/ig;
 	content = content.replace(re, '<a href="$1" rel="nofollow" target="_blank">$1</a>');
 	
-	re = /((magnet):\/\/(\S|,)+)/ig;
+	re = /((.*):\/\/(\S|,)+)/ig;
 	content = content.replace(re, '<a href="$1">$1</a>');
 	
 	return content;
