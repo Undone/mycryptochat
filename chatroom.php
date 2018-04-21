@@ -53,7 +53,8 @@
 				</div>
 			</div>
 			<div id="chatroom-footer">
-				<label><input type="checkbox" id="chatroom-render" onchange="toggleRender(this)"/> Render media</label>
+			<!-- Let's wait with the render media option -->
+				<label style="display:none"><input type="checkbox" id="chatroom-render" onchange="toggleRender(this)"/> Render media</label>
 				<span id="chatroom-expire"></span>
 			</div>
 			
