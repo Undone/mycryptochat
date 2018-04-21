@@ -86,6 +86,14 @@ footer a:hover {
 	display: none;
 }
 
+span.roomid {
+	color: green;
+}
+
+span.key {
+	color: red;
+}
+
 /*
 ----------------------------------------------------------
 	Navigation bar
