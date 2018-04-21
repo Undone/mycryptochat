@@ -124,15 +124,26 @@ require 'inc/functions.php';
 			<label for="selfDestroys" class="checkbox">Self-destroys if more than two concurrent users join the chat</label>
 			<br/>
 			<br/>
+			<input type="checkbox" id="key-generate" onchange="toggleKeyMenu()" checked/>
+			<label for="key-generate" class="checkbox">Use a random generated encryption key</label>
+			<div id="key-menu">
+				<br/>
+				<input type="password" id="key-custom" placeholder="Enter encryption key" value="" />
+			</div>
+			<br/>
+			<br/>
 			<input type="submit" value="Create a new chat room"/>
 		</form>
 	</section>
+	<script type="text/javascript" src="scripts/sjcl.js"></script>
+	<script type="text/javascript" src="scripts/myCryptoChat.js"></script>
 	<script type="text/javascript">
 		function createChatroom()
 		{
 			var expire 			= document.getElementById("expire").value;
 			var removable 		= document.getElementById("removable").checked;
 			var removePassword 	= document.getElementById("removePassword").value;
+			var customKey		= !document.getElementById("key-generate").checked;
 			
 			var formData = new FormData();
 			formData.append("action", "create_chatroom");
@@ -153,7 +164,22 @@ require 'inc/functions.php';
 				{
 					if (xhr.status === 201)
 					{
-						window.location = "chatroom.php?id=" + xhr.response;
+						var key = sjcl.random.randomWords(8);
+						var roomid = xhr.response;
+						
+						if (customKey)
+						{
+							var password 	= document.getElementById("key-custom").value;
+							key 			= sjcl.misc.pbkdf2(password, roomid);
+							
+							sessionStorage.setItem(roomid, sjcl.codec.base64url.fromBits(key));
+							
+							window.location = "chatroom.php?id=" + xhr.response;
+						}
+						else
+						{
+							window.location = "chatroom.php?id=" + xhr.response + "#" + sjcl.codec.base64url.fromBits(key);
+						}
 					}
 					else
 					{
@@ -164,6 +190,21 @@ require 'inc/functions.php';
 			xhr.send(formData);
 			
 			return false;
+		}
+		
+		function toggleKeyMenu()
+		{
+			var checkbox = document.getElementById("key-generate");
+			var elem = document.getElementById("key-menu");
+			
+			if (!checkbox.checked)
+			{
+				elem.style.display = "block";
+			}
+			else
+			{
+				elem.style.display = "none";
+			}
 		}
 		
 		function removableChanged(event)

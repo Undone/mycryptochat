@@ -77,6 +77,8 @@
 			<p>You need to choose a username before joining the chatroom.</p>
 			<form method="POST" onsubmit="return setUsername()">
 				<input type="text" id="username" placeholder="Enter username" required/>
+				<br/>
+				<input type="password" id="key-custom" placeholder="Enter encryption key" style="display:none"/>
 				<input type="submit" value="Enter"/>
 			</form>
 		</section>
@@ -123,12 +125,16 @@
 			if (key != "" && key != "=")
 			{
 				key = sjcl.codec.base64url.toBits(key);
-				username = sjcl.encrypt(key, username, cryptoOptions);
 			}
 			else
 			{
-				return false;
+				var password 	= document.getElementById("key-custom").value;
+				key 			= sjcl.misc.pbkdf2(password, roomId);
+				
+				sessionStorage.setItem(roomId, sjcl.codec.base64url.fromBits(key));
 			}
+			
+			username = sjcl.encrypt(key, username, cryptoOptions);
 			
 			var formData = new FormData();
 			formData.append("roomId", roomId);
@@ -182,16 +188,15 @@
 			// If an encryption key has not been set
 			if (key === "=" || key == "")
 			{
-				// We need to generate a new key
-				var newkey = generateKey();
+				// Display the encryption key input box
+				var keyElement = document.getElementById("key-custom");
 				
-				// Append it to the URL
-				setLocationHash(newkey);
+				keyElement.style.display = "block";
 			}
 			
 			<?php if ($user) { ?>
 				displayChat();
-			<?php } if ($chatRoom->dateEnd > 0) { ?>
+			<?php } if ($chatRoom && $chatRoom->dateEnd > 0) { ?>
 				var timestamp = convertUnixTimestamp(<?php echo $chatRoom->dateEnd; ?>);
 			
 				document.getElementById("chatroom-expire").innerHTML = "Room will expire at " + htmlEncode(timestamp);

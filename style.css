@@ -82,6 +82,10 @@ footer a:hover {
     display: none;
 }
 
+#key-menu {
+	display: none;
+}
+
 /*
 ----------------------------------------------------------
 	Navigation bar
