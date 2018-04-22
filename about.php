@@ -45,14 +45,16 @@
 				</p>
 				<h3>How it works</h3>
 				<p>
-					When you create a chatroom with a custom password, the encryption key will be derived with pbkdf2. If no custom password is entered, the key will be
-					a randomly generated. When the chatroom is created with a random key, the key will be stored in the URL itself. It will look something like this;
+					When you create a chatroom with a custom password, the encryption key will be derived with pbkdf2. The generated <span class="roomid">room ID</span> will be used as a salt
+					for pbkdf2. If no custom password is entered, the <span class="key">key</span> will be randomly generated.
+					When the chatroom is created with a random <span class="key">key</span>, the <span class="key">key</span> will be stored in the URL itself.
+					It will look something like this;
 					<br/><br/>
-					mycryptochat.org/chatroom.php?id=<span style="color:green">27SJrBVkQCsQFaCnjU94</span>#<span style="color:red">1BZX3QOXF78qq0r9HgZk1AeZK-sKkX3VZVKf40VdE6A</span>
+					mycryptochat.org/chatroom.php?id=<span class="roomid">27SJrBVkQCsQFaCnjU94</span>#<span class="key">1BZX3QOXF78qq0r9HgZk1AeZK-sKkX3VZVKf40VdE6A</span>
 					<br/><br/>
-					The <span class="key">red</span> part is the <span class="key">key</span> itself encoded with base64.
+					The <span class="key">purple</span> part is the <span class="key">key</span> itself encoded with base64.
 					<span class="roomid">Green</span> part is the <span class="roomid">room ID</span>.
-					The <span class="roomid">room ID</span> will always be present, however the encryption <span class="key">key</span> will be in the URL only when using a random key.
+					The <span class="roomid">room ID</span> will always be present, however the encryption <span class="key">key</span> will be in the URL only when using a random <span class="key">key</span>.
 					When using a custom password, users will be required to enter the password upon joining a chatroom.
 					The URL has a hashtag before the <span class="key">key</span> so it won't be sent to the server. Even if you have access log enabled on the web server,
 					only the <span class="roomid">room ID</span> will be seen in the logs.
