@@ -127,8 +127,8 @@ require 'inc/functions.php';
 			<input type="checkbox" id="key-generate" onchange="toggleKeyMenu()" checked/>
 			<label for="key-generate" class="checkbox">Use a random generated encryption key</label>
 			<div id="key-menu">
-				<p>Note: It is not recommended to use a custom password, the salt will be known by the server and the users in the same room.</p>
-				<input type="password" id="key-custom" placeholder="Enter encryption key" value="" />
+				<br/>
+				<input type="password" id="key-custom" placeholder="Enter a password" value="" />
 			</div>
 			<br/>
 			<br/>

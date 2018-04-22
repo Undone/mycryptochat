@@ -79,7 +79,7 @@
 			<form method="POST" onsubmit="return setUsername()">
 				<input type="text" id="username" placeholder="Enter username" required/>
 				<br/>
-				<input type="password" id="key-custom" placeholder="Enter encryption key" style="display:none"/>
+				<input type="password" id="key-custom" placeholder="Enter a password" style="display:none"/>
 				<input type="submit" value="Enter"/>
 			</form>
 		</section>
