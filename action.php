@@ -59,10 +59,11 @@ switch($action)
 			$chatMessage->isEvent	= false;
 			$chatMessage->date 		= time();
 			
-			$dbManager->addMessage($chatMessage);
-			
-			header("HTTP/1.1 201 Created");
-			exit;
+			if ($dbManager->addMessage($chatMessage) == 1)
+			{
+				header("HTTP/1.1 201 Created");
+				exit;
+			}
 		}
 		
 		break;
@@ -105,14 +106,15 @@ switch($action)
 			$dbManager->cleanChatrooms();
 
 			// we save the chat room in the database
-			$dbManager->createChatroom($chatRoom);
-
-			header("HTTP/1.1 201 Created");
-			header("Content-Type: application/json");
-			
-			// Send the roomid as a json string
-			echo json_encode($key);
-			exit;
+			if ($dbManager->createChatroom($chatRoom) == 1)
+			{
+				header("HTTP/1.1 201 Created");
+				header("Content-Type: application/json");
+				
+				// Send the roomid as a json string
+				echo json_encode($key);
+				exit;
+			}
 		}
 		
 		break;

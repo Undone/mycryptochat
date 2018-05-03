@@ -79,14 +79,15 @@ class DbManager
 		
 		$req = $this->db->prepare($query);
 
-		$req->execute(array(
-			$chatRoom->id,
-			$chatRoom->dateCreation,
-			$chatRoom->dateEnd,
-			$chatRoom->noMoreThanOneVisitor ? 1 : 0,
-			$chatRoom->isRemovable ? 1 : 0,
-			$chatRoom->removePassword
-		));
+		$req->bindParam(1, $chatRoom->id, PDO::PARAM_STR);
+		$req->bindParam(2, $chatRoom->dateCreation, PDO::PARAM_INT);
+		$req->bindParam(3, $chatRoom->dateEnd, PDO::PARAM_INT);
+		$req->bindParam(4, $chatRoom->noMoreThanOneVisitor, PDO::PARAM_BOOL);
+		$req->bindParam(5, $chatRoom->isRemovable, PDO::PARAM_BOOL);
+		$req->bindParam(6, $chatRoom->removePassword, PDO::PARAM_STR);
+		$req->execute();
+
+		return $req->rowCount();
 	}
 	
 	public function cleanChatrooms()
@@ -212,6 +213,8 @@ class DbManager
 		$req->bindParam(4, $chatMessage->isEvent, PDO::PARAM_BOOL);
 		$req->bindParam(5, $chatMessage->date, PDO::PARAM_INT);
 		$req->execute();
+
+		return $req->rowCount();
 	}
 	
 	public function addEventMessage(ChatUser $user, string $message)
@@ -223,7 +226,7 @@ class DbManager
 		$eventMessage->date		= time();
 		$eventMessage->isEvent	= true;
 		
-		$this->addMessage($eventMessage);
+		return $this->addMessage($eventMessage);
 	}
 	
 	public function countChatrooms()
