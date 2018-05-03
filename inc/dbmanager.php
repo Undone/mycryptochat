@@ -205,13 +205,13 @@ class DbManager
 		$query = 'INSERT INTO messages (roomid, message, user, isEvent, date) VALUES (?, ?, ?, ?, ?)';
 
 		$req = $this->db->prepare($query);
-		$req->execute(array(
-			$chatMessage->roomid,
-			$chatMessage->message,
-			$chatMessage->user,
-			$chatMessage->isEvent,
-			$chatMessage->date
-		));
+		
+		$req->bindParam(1, $chatMessage->roomid, PDO::PARAM_STR);
+		$req->bindParam(2, $chatMessage->message, PDO::PARAM_STR);
+		$req->bindParam(3, $chatMessage->user, PDO::PARAM_STR);
+		$req->bindParam(4, $chatMessage->isEvent, PDO::PARAM_BOOL);
+		$req->bindParam(5, $chatMessage->date, PDO::PARAM_INT);
+		$req->execute();
 	}
 	
 	public function addEventMessage(ChatUser $user, string $message)
