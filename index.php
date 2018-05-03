@@ -47,7 +47,7 @@ require 'inc/functions.php';
 	</p>
 	<?php
 	}
-	if (!extension_loaded('PDO_SQLITE')) {
+	if (DB_TYPE == DATABASE_SQLITE && !extension_loaded('PDO_SQLITE')) {
 		$showContent = false;
 	?>
 	<h2>Error: PDO SQLite missing</h2>
